@@ -702,6 +702,7 @@ function init() {
   console.log(`startpoint : ${startPoint.x},${startPoint.y}`);
   joinRoom(chunk.x, chunk.y);
   onResize();
+  $('#init-modal').modal({backdrop: 'static', keyboard: false});
 }
 
 function moveChunk(destX, destY) {

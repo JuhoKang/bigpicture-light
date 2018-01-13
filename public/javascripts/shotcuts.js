@@ -1,7 +1,7 @@
 
 
 $(document).keyup(function(event) {
-	if (document.activeElement.id == "msgbox")
+	if (document.activeElement.id == "msgbox" || document.activeElement.id == 'init-modal' || document.activeElement.id == 'nickname')
 		return;
 	// console.log(document.activeElement.id);
 	// console.log(event.keyCode);
@@ -49,7 +49,7 @@ $(document).keyup(function(event) {
 		if (event.keyCode === 107) {
 			updateCanvasMove();
 			$('#infotext').text('줌 인');
-			$('#infotext').attr('class', 'col-6 col-md-9 alert alert-primary btn-block');
+			$('#infotext').attr('class', 'col-4 col-md-4 alert alert-primary btn-block');
 			$('#infotext').animateCss('fadeIn');
 
 			if (canvas.getZoom() < 5) {
@@ -65,7 +65,7 @@ $(document).keyup(function(event) {
 		} else {
 			updateCanvasMove();
 			$('#infotext').text('줌 아웃');
-			$('#infotext').attr('class', 'col-6 col-md-9 alert alert-primary btn-block');
+			$('#infotext').attr('class', 'col-4 col-md-4 alert alert-primary btn-block');
 			$('#infotext').animateCss('fadeIn');
 
 			if (canvas.getZoom() > 0.04) {

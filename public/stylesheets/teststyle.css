@@ -117,5 +117,5 @@ canvas {
   right:0px;
   z-index:1000;
   width:0px;
-  height:calc(100% - 60px);
+  height:100%;
 }

@@ -17,8 +17,8 @@ html
     script(type="text/javascript" src="/scripts/socket.io-client/dist/socket.io.js")
     link(rel='stylesheet' href='/stylesheets/teststyle.css')
     link(rel='stylesheet' href='/scripts/nouislider/distribute/nouislider.min.css')
-    link(rel='stylesheet' href='/scripts/animate.css/animate.min.css')
     link(rel='stylesheet' href='/vendor/huebee/huebee.min.css')
+    link(rel='stylesheet' href='/scripts/animate.css/animate.min.css')
 
     //- script(src="https://code.jquery.com/jquery-3.2.1.min.js")
     // Bootstrap core JavaScript
@@ -30,8 +30,15 @@ html
     script(src='/javascripts/interact.js')
   body
     block header
-      // Navigation
-      nav.navbar.navbar-expand-lg.navbar-light.bg-light.fixed-top
-        a.navbar-brand(href='/') Big-Picture
+      .modal#init-modal(tabindex='-1', role='dialog', aria-labelledby='myLargeModalLabel', aria-hidden='true')
+        .modal-dialog.modal-md
+          .modal-content
+            .modal-header
+              h3 BigPicture
+            .modal-body
+              .form-group
+                input(type="text" placeholder="Nickname")#nickname.form-control
+            .modal-footer
+              input(type="button" value="Play")#play.btn.btn-block.btn-dark
     block content
     block footer

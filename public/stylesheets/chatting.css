@@ -18,16 +18,50 @@
 .full-width{
 	width: 100%;
 }
-.sidebar1 {
-	background: #e3f2fd;
-	/* Standard syntax */
-	padding: 0px;
-	min-height: 100%;
+@media ( max-width: 576px ) {
+	.sidebar1 {
+		margin-top: 111px;
+		background: #fff;
+		opacity: 0.8;
+		/* Standard syntax */
+		padding: 0px;
+		min-height: 100%;
+	}
+}
+@media ( min-width: 576px ) {
+	.sidebar1 {
+		margin-top: 83px;
+		background: #fff;
+		opacity: 0.8;
+		/* Standard syntax */
+		padding: 0px;
+		min-height: 100%;
+	}
+}
+@media ( min-width: 768px ) {
+	.sidebar1 {
+		margin-top: 55px;
+		background: #fff;
+		opacity: 0.8;
+		/* Standard syntax */
+		padding: 0px;
+		min-height: 100%;
+	}
+}
+@media ( min-width: 992px ) {
+	.sidebar1 {
+		margin-top: 29px;
+		background: #fff;
+		opacity: 0.8;
+		/* Standard syntax */
+		padding: 0px;
+		min-height: 100%;
+	}
 }
 .side-header{
 	background-color:#fff;
 	padding-bottom:10px;
-	height:35px;
+	height:28px;
 }
 .logo {
 	max-height: 130px;
@@ -75,7 +109,7 @@
 }
 
 .my-chattinglist .chattingbox{
-	background-color: #01A9DB;
+	background-color: #fff;
 }
 .footer{
 	padding: 3px;
