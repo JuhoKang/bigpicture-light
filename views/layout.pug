@@ -1,0 +1,37 @@
+doctype html
+html
+  head
+    title= title
+    meta(charset='utf-8')
+    meta(http-equiv='X-UA-Compatible' content='IE=edge')
+    // Bootstrap core CSS
+    link(href='/vendor/bootstrap/css/bootstrap.css', rel='stylesheet')
+    // Custom fonts for this template
+    link(href='/vendor/font-awesome/css/font-awesome.min.css', rel='stylesheet', type='text/css')
+    link(href='https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic', rel='stylesheet', type='text/css')
+    // Custom styles for this template
+    link(href='/css/landing-page.css', rel='stylesheet')
+    // mobile
+    meta(name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=no, shrink-to-fit=no')
+    script(type="text/javascript" src="/scripts/rx/dist/rx.all.js")
+    script(type="text/javascript" src="/scripts/socket.io-client/dist/socket.io.js")
+    link(rel='stylesheet' href='/stylesheets/teststyle.css')
+    link(rel='stylesheet' href='/scripts/nouislider/distribute/nouislider.min.css')
+    link(rel='stylesheet' href='/scripts/animate.css/animate.min.css')
+    link(rel='stylesheet' href='/vendor/huebee/huebee.min.css')
+
+    //- script(src="https://code.jquery.com/jquery-3.2.1.min.js")
+    // Bootstrap core JavaScript
+    script(src='/vendor/jquery/jquery.min.js')
+    script(src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous")
+    script(src='/vendor/popper/popper.min.js')
+    script(src='/vendor/bootstrap/js/bootstrap.min.js')
+    script(src='/javascripts/slidedown.js')
+    script(src='/javascripts/interact.js')
+  body
+    block header
+      // Navigation
+      nav.navbar.navbar-expand-lg.navbar-light.bg-light.fixed-top
+        a.navbar-brand(href='/') Big-Picture
+    block content
+    block footer

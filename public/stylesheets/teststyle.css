@@ -1,0 +1,121 @@
+
+canvas {
+  border: 1px solid #000;
+  margin: auto;
+}
+
+.slidedown-content{
+  display: none;
+  background-color: #f5f5f5;
+}
+
+.slidedown-content th{
+  font-size: 110%;
+}
+
+.nav-tabs-centered {
+    text-align:center;
+}
+
+.thead-custom th {
+  color: #fff;
+  background-color: #86ceda;
+}
+
+.form-control-table {
+  
+  width: 100%;
+  font-size: 1rem;
+  line-height: 1.25;
+  color: #797f86;
+  background-color: #fff; 
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  background-color: #333;
+  position:absolute;
+
+  margin: 100px auto;
+  -webkit-animation: sk-rotateplane 1.2s infinite ease-in-out;
+  animation: sk-rotateplane 1.2s infinite ease-in-out;
+}
+
+.tool-padding {
+  padding-right:0px;
+  padding-left:20px;
+  padding-top:6.6px;
+}
+.tool-margin{
+  margin-right:0px;
+  margin-left:0px;
+}
+
+@-webkit-keyframes sk-rotateplane {
+  0% { -webkit-transform: perspective(120px) }
+  50% { -webkit-transform: perspective(120px) rotateY(180deg) }
+  100% { -webkit-transform: perspective(120px) rotateY(180deg)  rotateX(180deg) }
+}
+
+@keyframes sk-rotateplane {
+  0% { 
+    transform: perspective(120px) rotateX(0deg) rotateY(0deg);
+    -webkit-transform: perspective(120px) rotateX(0deg) rotateY(0deg) 
+  } 50% { 
+    transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg);
+    -webkit-transform: perspective(120px) rotateX(-180.1deg) rotateY(0deg) 
+  } 100% { 
+    transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+    -webkit-transform: perspective(120px) rotateX(-180deg) rotateY(-179.9deg);
+  }
+}
+#drag-1 {
+  width: 15%;
+  height: initial;
+  min-height: 6.5em;
+  margin: 10%;
+
+  background-color: #29e;
+  color: white;
+
+  border-radius: 0.75em;
+  padding: 2%;
+
+  -webkit-transform: translate(0px, 0px);
+          transform: translate(0px, 0px);
+}
+
+@media only screen and (max-width: 479px){
+    #drag-1 { width: 70%; }
+}
+
+@media only screen and (min-width:479px) and (max-width:1024px){
+    #drag-1 { width: 35%; }
+}
+@media only screen and (min-width:1024px) and (max-width:1600px){
+    #drag-1 { width: 25%; }
+}
+
+
+#drag-me::before {
+  content: "#" attr(id);
+  font-weight: bold;
+}
+
+#map-container {
+  width: 150px;
+  height: 150px;
+  z-index: 900;
+  position: fixed;
+}
+#map {
+  
+}
+#sidebar{
+  position: absolute;
+  right:0px;
+  z-index:1000;
+  width:0px;
+  height:calc(100% - 60px);
+}

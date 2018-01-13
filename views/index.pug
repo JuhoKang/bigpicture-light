@@ -1,0 +1,103 @@
+extends layout
+block content
+	div(id="drag-1" class="draggable" style="position:fixed; z-index:1000; border-style:solid; border-color:black; background-color:#f8f9fa !important")
+		//button.btn(onclick='hideFunction()') x
+		.row.tool-margin
+			.row(style='width:100%; padding-top:2px').tool-margin
+				.col-12(style="padding-right:0px;padding-left:0px")
+					button#changeButton.btn.btn-primary.btn-block
+						span#changeButtonSpan.fa.fa-pencil
+			//.row(style='width:100%;').tool-margin
+				.col-6(style="padding-right:1.5px;padding-left:0px")
+					button#changeMode.btn.btn-primary.btn-block
+						span.fa.fa-arrows
+				.col-6(style="padding-right:0px;padding-left:0px")
+					button#pencilStyle.btn.btn-primary.btn-block
+						span.fa.fa-pencil
+			.row.tool-margin(style='width:100%')
+				.col-2(style="padding-right:0px;padding-left:0px")
+					button.btn.btn-block.clr-btn(style="background-color:#000000")  
+				.col-2(style="padding-right:0px;padding-left:0px")
+					button.btn.btn-block.clr-btn(style="background-color:#FFFFFF;border-color:#000000")  
+				.col-2(style="padding-right:0px;padding-left:0px")
+					button.btn.btn-block.clr-btn(style="background-color:#FF0000")  
+				.col-2(style="padding-right:0px;padding-left:0px")
+					button.btn.btn-block.clr-btn(style="background-color:#00FF00")  
+				.col-2(style="padding-right:0px;padding-left:0px")
+					button.btn.btn-block.clr-btn(style="background-color:#0000FF")  
+				.col-2(style="padding-right:0px;padding-left:0px")
+					button.btn.btn-block.clr-btn(style="background-color:#FFFF00")  
+			.row.tool-margin(style='width:100%')
+				input(value="#000" class="color-input")#drawing-color
+				//input(type="text")#drawing-color
+			.row.tool-margin(style='width:100%')
+				.col-3(style="padding-right:0px;padding-left:0px")
+					input(type="text" value="1").form-control.form-control-sm#drawing-line-width-input
+				.col-9.tool-padding
+					.btn-block#drawing-line-width
+				//input(type="range" value="30" min="0" max="150")#drawing-line-width
+			//.row.tool-margin(style='width:100%')
+				input(type="color" value="#000000")#drawing-shadow-color
+				input(type="text")#drawing-shadow-color
+			//.row.tool-margin(style='width:100%')
+				.col-3(style="padding-right:0px;padding-left:0px")
+					input(type="text" value="0").form-control.form-control-sm#drawing-shadow-width-input
+				.col-9.tool-padding
+					.btn-block#drawing-shadow-width
+			//.row.tool-margin(style='width:100%')
+				.col-3(style="padding-right:0px;padding-left:0px")
+					input(type="text" value="0").form-control.form-control-sm#drawing-shadow-offset-input
+				.col-9.tool-padding
+					.btn-block#drawing-shadow-offset
+
+	section.content-section-b
+		.container-fluid
+			.row
+				//	.alert.alert-danger.block#infotext infotext
+				.col-md-12
+					//desktop tooltips
+					.row
+						button.col-2.col-md-1.btn.btn-block.btn-dark#chatting-btn(value="off" style="margin-top:0rem") 채팅창
+						button.col-2.col-md-1.btn.btn-block.btn-dark#remote-control-btn(onclick='hideFunction()' style="margin-top:0rem") 리모콘
+						button.col-2.col-md-1.btn.btn-block#map-toggle.btn-dark(style="margin-top:0rem") 지도
+						.col-6.col-md-9.alert.alert-secondary.btn-block#infotext(style='margin-bottom:0rem; margin-top:0rem') 환영합니다!
+					.row
+						
+								
+						.col-lg-12
+							.row#canvas-container-div
+								#map-container
+									canvas#map
+								canvas#c
+								//.spinner
+				#sidebar
+					include chatting
+	script(type="text/javascript" src="/scripts/nouislider/distribute/nouislider.min.js")
+	script(type='text/javascript' src='/vendor/huebee/huebee.pkgd.min.js')
+	script(type="text/javascript" src="/scripts/fabric/dist/fabric.js")
+	script(type="text/javascript" src="/javascripts/fabric-paint-view.js")
+	script(type="text/javascript" src="/javascripts/map-view.js")
+	//script(type="text/javascript" src="/javascripts/paintstyle.js")
+	script(type='text/javascript' src="/javascripts/chatting.js")
+	script(type='text/javascript' src="/javascripts/shotcuts.js")
+	script(type='text/javascript' src="/javascripts/common.js")
+
+	script.
+		$('#chatting-btn').click(function(){
+				if($(this).val()=="off"){
+					$(this).val("on");
+					var fullWidth = window.innerWidth;
+					var w;
+					if(fullWidth/3 > 300){
+						w = fullWidth/3;
+					}
+					else{
+						w = 300;
+					}
+					$('#sidebar').animate({'width':w},700);
+				}else{
+					$(this).val("off");
+					$('#sidebar').animate({'width':0},700);
+				}
+			});
+
