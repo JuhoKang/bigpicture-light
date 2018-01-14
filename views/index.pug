@@ -1,63 +1,9 @@
 extends layout
 block content
-	//div(id="drag-1" class="draggable" style="position:fixed; z-index:1000; border-style:solid; border-color:black; background-color:#f8f9fa !important")
-		button.btn(onclick='hideFunction()') x
-		.row.tool-margin
-			.row(style='width:100%; padding-top:2px').tool-margin
-				.col-12(style="padding-right:0px;padding-left:0px")
-					buttonv.color-button#changeButton.btn.btn-dark.btn-block
-						span#changeButtonSpan.fa.fa-pencil
-			.row(style='width:100%;').tool-margin
-				.col-4(style="padding-right:1.5px;padding-left:0px")
-					button#changeMode.btn.btn-dark.btn-block
-						span.fa.fa-arrows
-				.col-4(style="padding-right:1.5px;padding-left:0px")
-					button#pencilStyle.btn.btn-dark.btn-block
-						span.fa.fa-pencil
-				.col-4(style="padding-right:0px;padding-left:0px")
-					button#brushStyle.btn.btn-dark.btn-block
-						span.fa.fa-paint-brush
-			.row.tool-margin(style='width:100%;margin-top:5px;')
-				.col-2(style="padding-right:0px;padding-left:0px")
-					button.btn.btn-block.clr-btn(style="background-color:#000000")  
-				.col-2(style="padding-right:0px;padding-left:0px")
-					button.btn.btn-block.clr-btn(style="background-color:#FFFFFF;border-color:#000000")  
-				.col-2(style="padding-right:0px;padding-left:0px")
-					button.btn.btn-block.clr-btn(style="background-color:#FF0000")  
-				.col-2(style="padding-right:0px;padding-left:0px")
-					button.btn.btn-block.clr-btn(style="background-color:#00FF00")  
-				.col-2(style="padding-right:0px;padding-left:0px")
-					button.btn.btn-block.clr-btn(style="background-color:#0000FF")  
-				.col-2(style="padding-right:0px;padding-left:0px")
-					button.btn.btn-block.clr-btn(style="background-color:#FFFF00")  
-			.row.tool-margin(style='width:100%;margin-top:5px;')
-				input(value="#000").color-input#drawing-color
-				input(type="text")#drawing-color
-			.row.tool-margin(style='width:100%;margin-top:5px;')
-				.col-3(style="padding-right:0px;padding-left:0px")
-					input(type="text" value="1").form-control.form-control-sm#drawing-line-width-input
-				.col-9.tool-padding
-					.btn-block#drawing-line-width
-				input(type="range" value="30" min="0" max="150")#drawing-line-width
-			.row.tool-margin(style='width:100%;margin-top:5px;')
-				input(type="color" value="#000000")#drawing-shadow-color
-				input(type="text")#drawing-shadow-color
-			.row.tool-margin(style='width:100%;margin-top:5px;')
-				.col-3(style="padding-right:0px;padding-left:0px")
-					input(type="text" value="0").form-control.form-control-sm#drawing-shadow-width-input
-				.col-9.tool-padding
-					.btn-block#drawing-shadow-width
-				input(type="range" value="0" min="0" max="50")#drawing-shadow-width
-			.row.tool-margin(style='width:100%;margin-top:5px;')
-				.col-3(style="padding-right:0px;padding-left:0px")
-					input(type="text" value="0").form-control.form-control-sm#drawing-shadow-offset-input
-				.col-9.tool-padding
-					.btn-block#drawing-shadow-offset
 
 	section.content-section-b
 		.container-fluid
 			.row
-				//	.alert.alert-danger.block#infotext infotext
 				.col-md-12
 					//desktop tooltips
 					.row
@@ -83,7 +29,6 @@ block content
 								#map-container
 									canvas#map
 								canvas#c
-								//.spinner
 				#sidebar
 					include chatting
 	script(type="text/javascript" src="/scripts/nouislider/distribute/nouislider.min.js")
@@ -91,7 +36,6 @@ block content
 	script(type="text/javascript" src="/scripts/fabric/dist/fabric.js")
 	script(type="text/javascript" src="/javascripts/fabric-paint-view.js")
 	script(type="text/javascript" src="/javascripts/map-view.js")
-	//script(type="text/javascript" src="/javascripts/paintstyle.js")
 	script(type='text/javascript' src="/javascripts/chatting.js")
 	script(type='text/javascript' src="/javascripts/shotcuts.js")
 

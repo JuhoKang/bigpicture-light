@@ -16,17 +16,9 @@ module.exports = function (server) {
   let io = require('socket.io')(server);
 
   io.on('connection', function (socket) {
-    // socket.on('drawing', (data) => {
-    //   socket.broadcast.emit('drawing', data);
-    // });
-
-    // init chunks in memory
     
     socket.on('getChunkData', (data) => {
-      // console.log(data);
-      // console.log(chunks);
       if (chunks[`${data.x},${data.y}`] == null) {
-        // console.log('first');
         chunks[`${data.x},${data.y}`] = fabric.createCanvasForNode(4096, 4096);
         PaintChunk.findOne({
           x_axis: data.x,
@@ -104,7 +96,6 @@ module.exports = function (server) {
           updateChunk(data.xAxis, data.yAxis);
         }, 360000);
       } else {
-        // console.log('else');
         fabric.util.enlivenObjects([data.data], (objects) => {
           objects.forEach((obj) => {
             obj.left = data.serverLeft;
@@ -131,10 +122,8 @@ module.exports = function (server) {
 
       for(let i = chunkObjects.length - 1; i > -1; i--) {
         if(chunkObjects[i].owner === data.uid) {
-          //console.log(chunkObjects[i].owner);
           console.log(data.uid);
           console.log('remove');
-          //console.log(chunkObjects[i]);
           chunks[`${data.xAxis},${data.yAxis}`].remove(chunkObjects[i]);
           socket.emit
           socket.broadcast.to(`chunk_room:${data.xAxis},${data.yAxis}`).emit('undoFromOther', data.uid );
@@ -146,11 +135,6 @@ module.exports = function (server) {
 
     socket.on('leaveRoom', (data) => {
       socket.leave(`chunk_room:${data.xAxis},${data.yAxis}`);
-      //for (let i = 0; i < data.length; i += 1) {
-      //  socket.leave(`paint_room:${data[i]}`);
-      // console.log(`user is leaving : paint_room:${data[i]}`);
-      //}
-      // console.log(io.sockets.adapter.rooms);
     });
 
     socket.on('fromclient', function (data) {
@@ -166,9 +150,7 @@ module.exports = function (server) {
       for (let i = 0; i < theRooms.length; i += 1) {
         const dirtyUsers = io.sockets.adapter.rooms[theRooms[i]].sockets;
         const dirtyUsersKeys = Object.keys(dirtyUsers);
-        // console.log(dirtyUsers);
         for (let j = 0; j < dirtyUsersKeys.length; j += 1) {
-          // console.log(dirtyUsersKeys[j]);
           if (destUsers[dirtyUsersKeys[j]] !== true) {
             destUsers[dirtyUsersKeys[j]] = true;
           }
@@ -179,9 +161,6 @@ module.exports = function (server) {
       for (let i = 0; i < destUsersKeys.length; i += 1) {
         socket.broadcast.to(destUsersKeys[i]).emit('toclient', msg);
       }
-      // socket.broadcast.to(socket.rooms[theRooms[i]]).emit('toclient', msg);
-
-      // io.sockets.in('room' + data.roomId).emit('toclient', msg);
     });
   });
 };

@@ -4,6 +4,7 @@
   window:true
   Rx:true
   noUiSlider:true
+  Huebee:true
   */
 
 
@@ -77,124 +78,15 @@ lineWidthSlider.noUiSlider.on('slide', (e) => {
   lineWidthSlider.noUiSlider.set(this.value);
 });*/
 
-
-
-//const shadowWidthSlider = document.getElementById('drawing-shadow-width');
-//const shadowWidthInput = document.getElementById('drawing-shadow-width-input');
-
-/*noUiSlider.create(shadowWidthSlider, {
-  start: [0],
-  connect: [true, false],
-  format: {
-    to(value) {
-      return Math.round(value);
-    },
-    from(value) {
-      return value;
-    },
-  },
-  range: {
-    min: 0,
-    max: 50,
-  },
-});
-
-shadowWidthSlider.noUiSlider.on('change', (e) => {
-  canvas.freeDrawingBrush.shadow.blur = parseInt(e, 10) || 0;
-});
-
-shadowWidthSlider.noUiSlider.on('slide', (e) => {
-  shadowWidthInput.value = parseInt(e, 10) || 0;
-});
-
-//not changing uislider
-shadowWidthInput.addEventListener('change', () => {
-  shadowWidthSlider.noUiSlider.set(this.value);
-});
-
-const shadowOffsetSlider = document.getElementById('drawing-shadow-offset');
-const shadowOffsetInput = document.getElementById('drawing-shadow-offset-input');
-
-noUiSlider.create(shadowOffsetSlider, {
-  start: [0],
-  connect: [true, false],
-  format: {
-    to(value) {
-      return Math.round(value);
-    },
-    from(value) {
-      return value;
-    },
-  },
-  range: {
-    min: 0,
-    max: 50,
-  },
-});
-
-shadowOffsetSlider.noUiSlider.on('change', (e) => {
-  canvas.freeDrawingBrush.shadow.offsetX = parseInt(e, 10) || 0;
-  canvas.freeDrawingBrush.shadow.offsetY = parseInt(e, 10) || 0;
-});
-
-shadowOffsetSlider.noUiSlider.on('slide', (e) => {
-  shadowOffsetInput.value = parseInt(e, 10) || 0;
-});
-
-//not changing uislider
-shadowOffsetInput.addEventListener('change', () => {
-  shadowOffsetSlider.noUiSlider.set(this.value);
-});*/
-
 fabric.Object.prototype.transparentCorners = false;
 
 const drawingModeEl = document.getElementById('changeMode');
 const drawingColorEl = document.getElementById('drawing-color');
 const drawingShadowColorEl = document.getElementById('drawing-shadow-color');
-//const drawingLineWidthEl = document.getElementById('drawing-line-width');
-//const drawingShadowWidth = document.getElementById('drawing-shadow-width');
-//const drawingShadowOffset = document.getElementById('drawing-shadow-offset');
 const pencilButton = document.getElementById('pencilStyle');
 const brushButton = document.getElementById('brushStyle');
 
 const changeButton = document.getElementById('changeButton');
-
-/*changeButton.onclick = () => {
-  if(canvas.isDrawingMode) {
-    canvas.isDrawingMode = false;
-    canvas.setCursor(canvas.moveCursor);
-    $('#changeButtonSpan').attr('class','fa fa-arrows');
-    $('#changeButtonSpan').animateCss('rubberBand');
-  } else {
-    canvas.isDrawingMode = true;
-    canvas.setCursor(canvas.freeDrawingCursor);
-    $('#changeButtonSpan').attr('class','fa fa-pencil');
-    $('#changeButtonSpan').animateCss('rubberBand');
-  }
-}*/
-
-//const clearEl = document.getElementById('clear-canvas');
-
-// clearEl.onclick = function () { canvas.clear(); };
-
-/*drawingModeEl.onclick = () => {
-  changeModeToNavigatingMode();
-};*/
-
-function changeMode() {
-  console.log('changemode desk clicked');
-  canvas.isDrawingMode = !canvas.isDrawingMode;
-  if (canvas.isDrawingMode) {
-    canvas.setCursor(canvas.freeDrawingCursor);
-    //drawingModeEl.innerHTML = 'Cancel drawing mode';
-    //drawingOptionsEl.style.display = '';
-  } else {
-    //canvas.setCursor(canvas.moveCursor);
-    canvas.defaultCursor = canvas.moveCursor;
-    //drawingModeEl.innerHTML = 'Enter drawing mode';
-    //drawingOptionsEl.style.display = 'none';
-  }
-};
 
 function changeModeToDrawingMode() {
   canvas.isDrawingMode = true;
@@ -227,58 +119,6 @@ $('#moveToCoord').click(() => {
   //updateCanvasMove();
 });
 
-/*pencilButton.onclick = () => {
-  changeModeToDrawingMode();
-  canvas.freeDrawingBrush = new fabric['PencilBrush'](canvas);
-
-  if (canvas.freeDrawingBrush) {
-    console.log($('#drawing-color').val());
-    canvas.freeDrawingBrush.color = $('#drawing-color').val();
-    canvas.freeDrawingBrush.width = parseInt(lineWidthSlider.noUiSlider.get(), 10) || 1;
-    canvas.freeDrawingBrush.shadow = new fabric.Shadow({
-      blur: parseInt($('#drawing-shadow-width').val(), 10) || 0,
-      offsetX: 0,
-      offsetY: 0,
-      affectStroke: true,
-      color: $('#drawing-shadow-color').val(),
-    });
-  }
-};*/
-
-/*brushButton.onclick = () => {
-  changeModeToDrawingMode();
-  canvas.freeDrawingBrush = new fabric['CircleBrush'](canvas);
-
-  if (canvas.freeDrawingBrush) {
-    canvas.freeDrawingBrush.color = $('#drawing-color').val();
-    canvas.freeDrawingBrush.width = parseInt(lineWidthSlider.noUiSlider.get(), 10) || 1;
-    canvas.freeDrawingBrush.shadow = new fabric.Shadow({
-      blur: parseInt(shadowWidthSlider.noUiSlider.get(), 10) || 0,
-      offsetX: 0,
-      offsetY: 0,
-      affectStroke: true,
-      color: $('#drawing-shadow-color').val(),
-    });
-  }
-};*/
-
-//$('#drawing-color').spectrum({
-//  color: '#000000',
-//});
-
-/*$('#drawing-color').on('move.spectrum', function(e, color) {
-  console.log(color);
-  canvas.freeDrawingBrush.color = color.toHexString();
-});*/
-
-//$('#drawing-shadow-color').spectrum({
-//  color: '#000000',
-//});
-
-/*$('#drawing-shadow-color').on('move.spectrum', function(e, color) {
-  console.log(color);
-  canvas.freeDrawingBrush.shadow.color = color.toHexString();
-});*/
 var hueb = new Huebee('.color-input', {
   notation: 'hex',
   staticOpen: false,
@@ -287,30 +127,6 @@ var hueb = new Huebee('.color-input', {
 hueb.on('change', function(color, hue, sat, lum) {
   canvas.freeDrawingBrush.color = color;
 });
-
-/*drawingColorEl.onchange = function () { 
-  drawingColorEl.value = this.value;
-  canvas.freeDrawingBrush.color = this.value;
-};*/
-/*drawingShadowColorEl.onchange = function () {
-  drawingColorEl.value = this.value;
-  canvas.freeDrawingBrush.shadow.color = this.value;
-};
-*/
-/*drawingLineWidthEl.onchange = function () {
-  canvas.freeDrawingBrush.width = parseInt(this.value, 10) || 1;
-  //this.previousSibling.innerHTML = this.value;
-};*/
-//drawingShadowWidth.onchange = function () {
-  //canvas.freeDrawingBrush.shadow.blur = parseInt(this.value, 10) || 0;
-  //this.previousSibling.innerHTML = this.value;
-//};
-//drawingShadowOffset.onchange = function () {
-//  canvas.freeDrawingBrush.shadow.offsetX = parseInt(this.value, 10) || 0;
-//  canvas.freeDrawingBrush.shadow.offsetY = parseInt(this.value, 10) || 0;
-  //this.previousSibling.innerHTML = this.value;
-//};
-
 
 // mobile view
 
@@ -370,14 +186,6 @@ function removeFromRemote(object) {
     socket.emit('removeObject', envelope);
 }
 
-$('.clr-btn').click(function () {
-  //console.log($(this).css('background-color'));
-  canvas.freeDrawingBrush.color = $(this).css('background-color');
-  //$('#drawing-color').spectrum('set', rgb2hex($(this).css('background-color')));
-  drawingColorEl.value = rgb2hex($(this).css('background-color'));
-  //$('#drawing-color').val($(this).css('background-color'));
-});
-
 //should Change
 function objectOutOfChunk(aCoords) {
   console.log(aCoords);
@@ -407,43 +215,17 @@ const onObjectAdded = (e) => {
     drawCount += 1;
     e.target.selectable = false;
     e.target.owner = guid;
+
     console.log('object added');
     console.log(e.target);
-    // canvas.clear();
-    // e.target.isNotMine = true;
-    /*if (objectOutOfChunk(e.target.aCoords)) {
-      console.log('object is out');
-      // clone this
-      // e.target.left = e.target.left - getLTC(e.target.aCoords.tl.x);
-      // e.target.top = e.target.top - getLTC(e.target.aCoords.tl.y);
-      const clonedObj = fabric.util.object.clone(e.target);
-      console.log(getLTC(startPoint.x + e.target.aCoords.tl.x));
-      console.log('left : '+ (e.target.left - getLTC(e.target.aCoords.tl.x)));
-      console.log('top : '+ (e.target.left - getLTC(e.target.aCoords.tl.y)));
-      clonedObj.left = e.target.left - getLTC(e.target.aCoords.tl.x);
-      clonedObj.top = e.target.top - getLTC(e.target.aCoords.tl.y);
-      //console.log(chunk.x + getLTC(e.target.aCoords.tl.x));
-      //console.log(chunk.y + getLTC(e.target.aCoords.tl.y));
-      const envelope = {
-        xAxis: chunk.x + getLTC(e.target.aCoords.tl.x),
-        yAxis: chunk.y + getLTC(e.target.aCoords.tl.y),
-        data: clonedObj,
-      };
-      socket.emit('drawToChunk', envelope);
-    } else {
-      const envelope = {
-        xAxis: chunk.x,
-        yAxis: chunk.y,
-        data: e.target,
-      };
-      socket.emit('drawToChunk', envelope);
-    }*/
+
     const clonedObj = fabric.util.object.clone(e.target);
-    //clonedObj.left = (startPoint.x + clonedObj.left) - getLTC(startPoint.x + e.target.aCoords.tl.x);
-    //clonedObj.top = (startPoint.y + clonedObj.top) - getLTC(startPoint.x + e.target.aCoords.tl.y);
+
     console.log(`clonedObj.left : ${clonedObj.left} , top : ${clonedObj.top}`);
     clonedObj.owner = guid;
+
     console.log(`envelope x : ${getLTC(startPoint.x + e.target.aCoords.tl.x)} , y : ${getLTC(startPoint.y + e.target.aCoords.tl.y)}`);
+
     const envelope = {
       xAxis: getLTC(startPoint.x + e.target.aCoords.tl.x),
       yAxis: getLTC(startPoint.y + e.target.aCoords.tl.y),
@@ -455,8 +237,6 @@ const onObjectAdded = (e) => {
     socket.emit('drawToChunk', envelope);
   } else {
     console.log('object added from other');
-    
-    //console.log(e.target);
   }
 };
 
@@ -528,7 +308,6 @@ socket.on('otherChunkSend', (data) => {
       object.top += data.y - startPoint.y;
       object.isNotMine = true;
       canvas.add(object);
-      //$('.spinner').show();
     });
       
     fetchCanvas.forEachObject((o) => {
@@ -776,7 +555,7 @@ const onObjectFromOther = (data) => {
   console.log('hello');
   console.log(data);
   $('#infotext').text('누군가 그리고있어요!');
-  $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-success btn-block');
+  $('#infotext').attr('class', 'col-lg-3 col-md-12 col-sm-12 alert alert-success btn-block');
   $('#infotext').animateCss('jello');
   fabric.util.enlivenObjects([data.data], (objects) => {
     objects.forEach((obj) => {
