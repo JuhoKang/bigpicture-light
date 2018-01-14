@@ -370,14 +370,6 @@ function removeFromRemote(object) {
     socket.emit('removeObject', envelope);
 }
 
-$('.clr-btn').click(function () {
-  //console.log($(this).css('background-color'));
-  canvas.freeDrawingBrush.color = $(this).css('background-color');
-  //$('#drawing-color').spectrum('set', rgb2hex($(this).css('background-color')));
-  drawingColorEl.value = rgb2hex($(this).css('background-color'));
-  //$('#drawing-color').val($(this).css('background-color'));
-});
-
 //should Change
 function objectOutOfChunk(aCoords) {
   console.log(aCoords);
