@@ -90,6 +90,7 @@ module.exports = function (server) {
               objects.forEach((obj) => {
                 obj.left = data.serverLeft;
                 obj.top = data.serverTop;
+                obj.owner = data.uid;
                 chunks[`${data.xAxis},${data.yAxis}`].add(obj);
                 //paintChunkController.paintchunk_save(data.xAxis, data.yAxis, JSON.stringify(target));
               });
@@ -108,28 +109,39 @@ module.exports = function (server) {
           objects.forEach((obj) => {
             obj.left = data.serverLeft;
             obj.top = data.serverTop;
+            obj.owner = data.uid;
             chunks[`${data.xAxis},${data.yAxis}`].add(obj);
             paintChunkController.paintchunk_save(data.xAxis, data.yAxis, JSON.stringify(chunks[`${data.xAxis},${data.yAxis}`]));
           });
         });
       }
 
-      socket.broadcast.to(`chunk_room:${data.xAxis},${data.yAxis}`).emit('objectFromOther', data.data);
+      socket.broadcast.to(`chunk_room:${data.xAxis},${data.yAxis}`).emit('objectFromOther', {
+        data: data.data,
+        uid: data.uid,
+      });
     });
 
     socket.on('removeObject', (data) => {
-      console.log(chunks[`${data.xAxis},${data.yAxis}`].getObjects().length);
-      console.log(data.data);
-      chunks[`${data.xAxis},${data.yAxis}`].remove(data.data);
-      fabric.util.enlivenObjects([data.data], (objects) => {
-        objects.forEach((obj) => {
-          obj.left = data.serverLeft;
-          obj.top = data.serverTop;
-          chunks[`${data.xAxis},${data.yAxis}`].remove(obj);
-          paintChunkController.paintchunk_save(data.xAxis, data.yAxis, JSON.stringify(chunks[`${data.xAxis},${data.yAxis}`]));
-        });
-      });
-      console.log(chunks[`${data.xAxis},${data.yAxis}`].getObjects().length);
+      console.log(`${data.xAxis},${data.yAxis}`);
+      console.log('hello');
+      let chunkObjects = chunks[`${data.xAxis},${data.yAxis}`].getObjects();
+      console.log(chunkObjects.length);
+      console.log(chunkObjects[chunkObjects.length-1].owner);
+
+      for(let i = chunkObjects.length - 1; i > -1; i--) {
+        if(chunkObjects[i].owner === data.uid) {
+          //console.log(chunkObjects[i].owner);
+          console.log(data.uid);
+          console.log('remove');
+          //console.log(chunkObjects[i]);
+          chunks[`${data.xAxis},${data.yAxis}`].remove(chunkObjects[i]);
+          socket.emit
+          socket.broadcast.to(`chunk_room:${data.xAxis},${data.yAxis}`).emit('undoFromOther', data.uid );
+          break;
+        }
+      }
+      console.log(chunkObjects.length);
     });
 
     socket.on('leaveRoom', (data) => {

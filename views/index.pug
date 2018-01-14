@@ -1,7 +1,7 @@
 extends layout
 block content
-	div(id="drag-1" class="draggable" style="position:fixed; z-index:1000; border-style:solid; border-color:black; background-color:#f8f9fa !important")
-		//button.btn(onclick='hideFunction()') x
+	//div(id="drag-1" class="draggable" style="position:fixed; z-index:1000; border-style:solid; border-color:black; background-color:#f8f9fa !important")
+		button.btn(onclick='hideFunction()') x
 		.row.tool-margin
 			.row(style='width:100%; padding-top:2px').tool-margin
 				.col-12(style="padding-right:0px;padding-left:0px")
@@ -32,22 +32,22 @@ block content
 					button.btn.btn-block.clr-btn(style="background-color:#FFFF00")  
 			.row.tool-margin(style='width:100%;margin-top:5px;')
 				input(value="#000").color-input#drawing-color
-				//input(type="text")#drawing-color
+				input(type="text")#drawing-color
 			.row.tool-margin(style='width:100%;margin-top:5px;')
 				.col-3(style="padding-right:0px;padding-left:0px")
 					input(type="text" value="1").form-control.form-control-sm#drawing-line-width-input
 				.col-9.tool-padding
 					.btn-block#drawing-line-width
-				//input(type="range" value="30" min="0" max="150")#drawing-line-width
+				input(type="range" value="30" min="0" max="150")#drawing-line-width
 			.row.tool-margin(style='width:100%;margin-top:5px;')
 				input(type="color" value="#000000")#drawing-shadow-color
-				//input(type="text")#drawing-shadow-color
+				input(type="text")#drawing-shadow-color
 			.row.tool-margin(style='width:100%;margin-top:5px;')
 				.col-3(style="padding-right:0px;padding-left:0px")
 					input(type="text" value="0").form-control.form-control-sm#drawing-shadow-width-input
 				.col-9.tool-padding
 					.btn-block#drawing-shadow-width
-				//input(type="range" value="0" min="0" max="50")#drawing-shadow-width
+				input(type="range" value="0" min="0" max="50")#drawing-shadow-width
 			.row.tool-margin(style='width:100%;margin-top:5px;')
 				.col-3(style="padding-right:0px;padding-left:0px")
 					input(type="text" value="0").form-control.form-control-sm#drawing-shadow-offset-input
@@ -61,24 +61,22 @@ block content
 				.col-md-12
 					//desktop tooltips
 					.row
-						button.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark(onclick="getElementById('changeMode').click()")
+						button.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark(onclick="changeModeToNavigatingMode()")
 							span.fa.fa-mouse-pointer
 							|  (S)
-						button.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark(onclick="getElementById('pencilStyle').click()")
+						button.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark(onclick="changeModeToDrawingMode()")
 							span.fa.fa-paint-brush
 							|  (D)
 						button.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark(onclick="getElementById('drawing-color').click()")
-							span.fa.fa-tint
-							|  (W)
+							input.color-input(value="#000000")
 						button.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark#remote-control-btn(onclick='hideFunction()')
-							span.fa.fa-gamepad
-							|  (R)
-						button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark#map-toggle(style="margin-top:0rem") 지도 (M)
-						//- button.col-1.col-md-1.btn-md.btn-dark#remote-control-btn(onclick='hideFunction()' style="margin-top:0rem") 리모콘 (R)
-						button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark#chatting-btn(value="off" style="margin-top:0rem") 채팅창 (C)
+							.btn-block#drawing-line-width
+						button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark#undo-button(style="margin-top:0rem") undo (Ctrl+Z)
+						button.col-lg-1.col-md-1.col-sm-3.col-6.btn-md.btn-dark#map-toggle(style="margin-top:0rem") 지도 (M)
+						button.col-lg-1.col-md-1.col-sm-3.col-6.btn-md.btn-dark#chatting-btn(value="off" style="margin-top:0rem") 채팅창 (C)
 						button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark(style="margin-top:0rem") GitHub
 						button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark.my-nick-name(data-toggle='modal', data-target='#init-modal' style="margin-top:0rem") 비회원
-						.col-lg-4.col-md-12.col-sm-12.alert.alert-secondary.btn-block#infotext(style='margin-bottom:0rem; margin-top:0rem; padding:0 0 0 5px') 환영합니다!
+						.col-lg-3.col-md-12.col-sm-12.alert.alert-secondary.btn-block#infotext(style='margin-bottom:0rem; margin-top:0rem; padding:0 0 0 5px') 환영합니다!
 					.row
 						.col-lg-12
 							.row#canvas-container-div

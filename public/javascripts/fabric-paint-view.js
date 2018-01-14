@@ -45,7 +45,8 @@ function getLTC(num) {
 $('.spinner').hide();
 
 const lineWidthSlider = document.getElementById('drawing-line-width');
-const lineWidthInput = document.getElementById('drawing-line-width-input');
+//const lineWidthInput = document.getElementById('drawing-line-width-input');
+
 noUiSlider.create(lineWidthSlider, {
   start: [1],
   connect: [true, false],
@@ -68,13 +69,15 @@ lineWidthSlider.noUiSlider.on('change', (e) => {
 });
 
 lineWidthSlider.noUiSlider.on('slide', (e) => {
-  lineWidthInput.value = parseInt(e, 10) || 1;
+  //lineWidthInput.value = parseInt(e, 10) || 1;
 });
 
 //not changing uislider
-lineWidthInput.addEventListener('change', () => {
+/*lineWidthInput.addEventListener('change', () => {
   lineWidthSlider.noUiSlider.set(this.value);
-});
+});*/
+
+
 
 //const shadowWidthSlider = document.getElementById('drawing-shadow-width');
 //const shadowWidthInput = document.getElementById('drawing-shadow-width-input');
@@ -156,7 +159,7 @@ const brushButton = document.getElementById('brushStyle');
 
 const changeButton = document.getElementById('changeButton');
 
-changeButton.onclick = () => {
+/*changeButton.onclick = () => {
   if(canvas.isDrawingMode) {
     canvas.isDrawingMode = false;
     canvas.setCursor(canvas.moveCursor);
@@ -168,7 +171,7 @@ changeButton.onclick = () => {
     $('#changeButtonSpan').attr('class','fa fa-pencil');
     $('#changeButtonSpan').animateCss('rubberBand');
   }
-}
+}*/
 
 //const clearEl = document.getElementById('clear-canvas');
 
@@ -278,13 +281,17 @@ $('#moveToCoord').click(() => {
 });*/
 var hueb = new Huebee('.color-input', {
   notation: 'hex',
-  staticOpen: true,
-})
+  staticOpen: false,
+});
 
-drawingColorEl.onchange = function () { 
+hueb.on('change', function(color, hue, sat, lum) {
+  canvas.freeDrawingBrush.color = color;
+});
+
+/*drawingColorEl.onchange = function () { 
   drawingColorEl.value = this.value;
   canvas.freeDrawingBrush.color = this.value;
-};
+};*/
 /*drawingShadowColorEl.onchange = function () {
   drawingColorEl.value = this.value;
   canvas.freeDrawingBrush.shadow.color = this.value;
@@ -309,7 +316,7 @@ drawingColorEl.onchange = function () {
 
 if (canvas.freeDrawingBrush) {
   canvas.freeDrawingBrush.color = '#000000';
-  canvas.freeDrawingBrush.width = parseInt(lineWidthSlider.noUiSlider.get(), 10) || 1;
+  //canvas.freeDrawingBrush.width = parseInt(lineWidthSlider.noUiSlider.get(), 10) || 1;
   canvas.freeDrawingBrush.shadow = new fabric.Shadow({
     blur: parseInt('#000000', 10) || 0,
     offsetX: 0,
@@ -329,8 +336,9 @@ function rgb2hex(rgb) {
 
 var drawCount = 0;
 
-$(document).keypress(function(event){
-	if(event.keyCode === 26) {
+$(document).keyup(function(event){
+  console.log(event);
+	if(event.keyCode === 90 && event.ctrlKey) {
     console.log('ctrl z');
     unDo();
 	}
@@ -341,27 +349,24 @@ function unDo() {
   console.log(objects);
   if(drawCount > 0) {
     for(var i = objects.length - 1; i > -1; i--) {
-      if(objects[i].owner === 'me') {
+      if(objects[i].owner === guid) {
         console.log('remove');
         console.log(objects[i]);
         removeFromRemote(objects[i]);
         canvas.fxRemove(objects[i]);
         drawCount--;
+        break;
       }
     }
   }
 }
 
 function removeFromRemote(object) {
-    console.log(`envelope x : ${getLTC(startPoint.x + object.aCoords.tl.x)} , y : ${getLTC(startPoint.y + object.aCoords.tl.y)}`);
-    const clonedObj = fabric.util.object.clone(object);
-    const envelope = {
-      xAxis: getLTC(startPoint.x + object.aCoords.tl.x),
-      yAxis: getLTC(startPoint.y + object.aCoords.tl.y),
-      serverLeft: (startPoint.x + object.left) - getLTC(startPoint.x + object.aCoords.tl.x),
-      serverTop: (startPoint.y + object.top) - getLTC(startPoint.x + object.aCoords.tl.y),
-      data: object,
-    };
+  const envelope = {
+    xAxis: getLTC(startPoint.x + object.aCoords.tl.x),
+    yAxis: getLTC(startPoint.y + object.aCoords.tl.y),
+    uid: guid,
+  };
     socket.emit('removeObject', envelope);
 }
 
@@ -388,11 +393,20 @@ function objectOutOfChunk(aCoords) {
   return false;
 }
 
+const guid = uuidv4();
+
+function uuidv4() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+    return v.toString(16);
+  });
+}
+
 const onObjectAdded = (e) => {
   if (!e.target.isNotMine) {
     drawCount += 1;
     e.target.selectable = false;
-    e.target.owner = "me";
+    e.target.owner = guid;
     console.log('object added');
     console.log(e.target);
     // canvas.clear();
@@ -428,7 +442,7 @@ const onObjectAdded = (e) => {
     //clonedObj.left = (startPoint.x + clonedObj.left) - getLTC(startPoint.x + e.target.aCoords.tl.x);
     //clonedObj.top = (startPoint.y + clonedObj.top) - getLTC(startPoint.x + e.target.aCoords.tl.y);
     console.log(`clonedObj.left : ${clonedObj.left} , top : ${clonedObj.top}`);
-
+    clonedObj.owner = guid;
     console.log(`envelope x : ${getLTC(startPoint.x + e.target.aCoords.tl.x)} , y : ${getLTC(startPoint.y + e.target.aCoords.tl.y)}`);
     const envelope = {
       xAxis: getLTC(startPoint.x + e.target.aCoords.tl.x),
@@ -436,6 +450,7 @@ const onObjectAdded = (e) => {
       serverLeft: (startPoint.x + clonedObj.left) - getLTC(startPoint.x + e.target.aCoords.tl.x),
       serverTop: (startPoint.y + clonedObj.top) - getLTC(startPoint.x + e.target.aCoords.tl.y),
       data: clonedObj,
+      uid: guid,
     };
     socket.emit('drawToChunk', envelope);
   } else {
@@ -761,14 +776,15 @@ const onObjectFromOther = (data) => {
   console.log('hello');
   console.log(data);
   $('#infotext').text('누군가 그리고있어요!');
-  $('#infotext').attr('class', 'col-6 col-md-9 alert alert-success btn-block');
+  $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-success btn-block');
   $('#infotext').animateCss('jello');
-  fabric.util.enlivenObjects([data], (objects) => {
+  fabric.util.enlivenObjects([data.data], (objects) => {
     objects.forEach((obj) => {
       const fromOther = obj;
       fromOther.isNotMine = true;
       fromOther.selectable = false;
-      canvas.add(obj);
+      fromOther.owner = data.uid;
+      canvas.add(fromOther);
       canvas.renderAll();
     });
   });
@@ -776,6 +792,22 @@ const onObjectFromOther = (data) => {
 
 socket.on('objectFromOther', onObjectFromOther);
 
+const onUndoFromOther = (uid) => {
+  console.log(uid);
+  $('#infotext').text('누군가 그리고있어요!');
+  $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-success btn-block');
+  $('#infotext').animateCss('jello');
+  let objects = canvas.getObjects();
+  for(var i = objects.length - 1; i > -1; i--) {
+    if(objects[i].owner === uid) {
+      console.log('remove');
+      canvas.fxRemove(objects[i]);
+      break;
+    }
+  }
+}
+
+socket.on('undoFromOther', onUndoFromOther);
 
 let isPanning = false;
 let beforePoint;
