@@ -61,17 +61,17 @@ block content
 				.col-md-12
 					//desktop tooltips
 					.row
-						button.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark(onclick="changeModeToNavigatingMode()")
+						button.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark#changeMode(onclick="changeModeToNavigatingMode()")
 							span.fa.fa-mouse-pointer
 							|  (S)
-						button.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark(onclick="changeModeToDrawingMode()")
+						button.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark#pencilStyle(onclick="changeModeToDrawingMode()")
 							span.fa.fa-paint-brush
 							|  (D)
 						button.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark(onclick="getElementById('drawing-color').click()")
 							input.color-input(value="#000000")
 						button.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark#remote-control-btn(onclick='hideFunction()')
 							.btn-block#drawing-line-width
-						button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark#undo-button(style="margin-top:0rem" onclick="unDo") undo (Ctrl+Z)
+						button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark#undo-button(style="margin-top:0rem" onclick="unDo()") undo (Ctrl+Z)
 						button.col-lg-1.col-md-1.col-sm-3.col-6.btn-md.btn-dark#map-toggle(style="margin-top:0rem") 지도 (M)
 						button.col-lg-1.col-md-1.col-sm-3.col-6.btn-md.btn-dark#chatting-btn(value="off" style="margin-top:0rem") 채팅창 (C)
 						button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark(style="margin-top:0rem") GitHub
@@ -94,7 +94,6 @@ block content
 	//script(type="text/javascript" src="/javascripts/paintstyle.js")
 	script(type='text/javascript' src="/javascripts/chatting.js")
 	script(type='text/javascript' src="/javascripts/shotcuts.js")
-	//- script(type='text/javascript' src="/javascripts/common.js")
 
 	script.
 		$('#chatting-btn').click(function(){
