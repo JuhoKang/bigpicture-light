@@ -12,7 +12,7 @@ preparing
 
 ## Features
 * Real-time drawing
-* Free space to draw on (4096*4096*32 of space with no zoom 1:1)
+* Free space to draw on (4096x4096x32 of space with no zoom 1:1)
 * Free zoom in, out. drawing based on vector image
 * Undo what you draw in real time
 * Simple chatting with other people based on user coordinates
