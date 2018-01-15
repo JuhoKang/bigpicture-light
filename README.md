@@ -8,7 +8,11 @@ Consumer demand for contents are increasing. Traditionaly text, video, image sha
 
 ## Overview
 
-preparing
+![intro](https://github.com/JuhoKang/bigpicture-light/blob/master/bpimage1.png)
+![color picking](https://github.com/JuhoKang/bigpicture-light/blob/master/bpimage2.png)
+
+## video
+[![Video link](https://img.youtube.com/vi/Tn8WEewwzwc/0.jpg)](https://www.youtube.com/watch?v=Tn8WEewwzwc)
 
 ## Features
 * Real-time drawing
