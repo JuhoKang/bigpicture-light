@@ -1,12 +1,11 @@
-let http = require('http');
-const imageDataCellController = require('../controllers/imageDataCellController');
-const ImageDataCell = require('../models/ImageDataCell');
 const PaintChunk = require('../models/PaintChunk');
+const debug = require('debug')('socket');
 const paintChunkController = require('../controllers/paintChunkController');
 const fabric = require('fabric').fabric;
-const fs = require('fs');
 
 const MAX_CHUNK_HEALTH = 3;
+const CHUNK_UPDATE_MILLSEC_TIME = 10000;
+const CANVAS_SIZE = 4096;
 
 module.exports = function (server) {
   const chunks = {};
@@ -14,27 +13,27 @@ module.exports = function (server) {
   const chunkInterval = {};
 
   function updateChunk(x, y) {
-    console.log(`update chunk ${x},${y} : chunkHealth is : ${chunkHealth[`${x},${y}`]}`);
+    debug(`update chunk ${x},${y} : chunkHealth is : ${chunkHealth[`${x},${y}`]}`);
     const target = chunks[`${x},${y}`];
-    paintChunkController.paintchunk_save(x, y, JSON.stringify(target));
-    if(chunkHealth[`${x},${y}`] < 0) {
-      chunks[`${x},${y}`] = null;
-      clearInterval(chunkInterval[`${x},${y}`]);
-      chunkInterval[`${x},${y}`] = null;
-    } else {
-      console.log(`hello`);
-      chunkHealth[`${x},${y}`] = chunkHealth[`${x},${y}`] - 1;
-    }
+    paintChunkController.paintchunk_save(x, y, JSON.stringify(target)).then((x) => {
+      if (chunkHealth[`${x},${y}`] < 0) {
+        clearInterval(chunkInterval[`${x},${y}`]);
+        chunks[`${x},${y}`] = null;
+        chunkInterval[`${x},${y}`] = null;
+      } else {
+        chunkHealth[`${x},${y}`] -= 1;
+      }
+    });
   }
 
   let io = require('socket.io')(server);
 
   io.on('connection', function (socket) {
-    
+
     socket.on('getChunkData', (data) => {
       //no chunk hit on memory
       if (chunks[`${data.x},${data.y}`] == null) {
-        chunks[`${data.x},${data.y}`] = fabric.createCanvasForNode(4096, 4096);
+        chunks[`${data.x},${data.y}`] = fabric.createCanvasForNode(CANVAS_SIZE, CANVAS_SIZE);
         //get data from database
         PaintChunk.findOne({
           x_axis: data.x,
@@ -56,12 +55,12 @@ module.exports = function (server) {
           // need better error handling
           debug(err);
         });
-        //update intialized chunk after 30sec
-        
+
+        //initialize chunkHealth when initilizing chunk
         chunkHealth[`${data.x},${data.y}`] = MAX_CHUNK_HEALTH;
         const interval = setInterval(() => {
           updateChunk(data.x, data.y);
-        }, 3000);        
+        }, CHUNK_UPDATE_MILLSEC_TIME);
         chunkInterval[`${data.x},${data.y}`] = interval;
       } else {
         if (data.isMain) {
@@ -85,8 +84,8 @@ module.exports = function (server) {
       if (chunks[`${data.xAxis},${data.yAxis}`] == null) {
         //console.log(`${data.xAxis},${data.yAxis} : is null`);
         MAX_CHUNK_HEALTH
-        chunks[`${data.xAxis},${data.yAxis}`] = fabric.createCanvasForNode(4096, 4096);
-        
+        chunks[`${data.xAxis},${data.yAxis}`] = fabric.createCanvasForNode(CANVAS_SIZE, CANVAS_SIZE);
+
         PaintChunk.findOne({
           x_axis: data.xAxis,
           y_axis: data.yAxis,
@@ -100,7 +99,6 @@ module.exports = function (server) {
                 obj.top = data.serverTop;
                 obj.owner = data.uid;
                 chunks[`${data.xAxis},${data.yAxis}`].add(obj);
-                //paintChunkController.paintchunk_save(data.xAxis, data.yAxis, JSON.stringify(target));
               });
             });
           }
@@ -108,15 +106,17 @@ module.exports = function (server) {
           // need better error handling
           debug(err);
         });
-        
+
+        //initialize chunkHealth when initilizing chunk
         chunkHealth[`${data.x},${data.y}`] = MAX_CHUNK_HEALTH;
         const interval = setInterval(() => {
           updateChunk(data.xAxis, data.yAxis);
-        }, 30000);
+        }, CHUNK_UPDATE_MILLSEC_TIME);
         chunkInterval[`${data.x},${data.y}`] = interval;
-        
+
       } else {
-        chunkHealth[`${data.x},${data.y}`] = MAX_CHUNK_HEALTH;
+        //reInitialize chunkHealth when user draws.
+        chunkHealth[`${data.xAxis},${data.yAxis}`] = MAX_CHUNK_HEALTH;
 
         fabric.util.enlivenObjects([data.data], (objects) => {
           objects.forEach((obj) => {
@@ -124,7 +124,6 @@ module.exports = function (server) {
             obj.top = data.serverTop;
             obj.owner = data.uid;
             chunks[`${data.xAxis},${data.yAxis}`].add(obj);
-            paintChunkController.paintchunk_save(data.xAxis, data.yAxis, JSON.stringify(chunks[`${data.xAxis},${data.yAxis}`]));
           });
         });
       }
@@ -133,26 +132,18 @@ module.exports = function (server) {
         data: data.data,
         uid: data.uid,
       });
+
     });
 
     socket.on('removeObject', (data) => {
-      console.log(`${data.xAxis},${data.yAxis}`);
-      console.log('hello');
       let chunkObjects = chunks[`${data.xAxis},${data.yAxis}`].getObjects();
-      console.log(chunkObjects.length);
-      console.log(chunkObjects[chunkObjects.length-1].owner);
-
-      for(let i = chunkObjects.length - 1; i > -1; i--) {
-        if(chunkObjects[i].owner === data.uid) {
-          console.log(data.uid);
-          console.log('remove');
+      for (let i = chunkObjects.length - 1; i > -1; i--) {
+        if (chunkObjects[i].owner === data.uid) {
           chunks[`${data.xAxis},${data.yAxis}`].remove(chunkObjects[i]);
-          socket.emit
-          socket.broadcast.to(`chunk_room:${data.xAxis},${data.yAxis}`).emit('undoFromOther', data.uid );
+          socket.broadcast.to(`chunk_room:${data.xAxis},${data.yAxis}`).emit('undoFromOther', data.uid);
           break;
         }
       }
-      console.log(chunkObjects.length);
     });
 
     socket.on('leaveRoom', (data) => {

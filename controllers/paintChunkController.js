@@ -14,10 +14,6 @@ exports.paintchunk_create_post = function (req, res) {
 
   const errors = req.validationErrors();
 
-  // debug('here!1');
-  // debug(req.body.data);
-
-  // debug('here!2');
   if (errors) {
     debug('errors in validation : ');
   } else {
@@ -60,35 +56,41 @@ exports.paintchunk_detail = function (req, res) {
 };
 
 exports.paintchunk_save = (xAxis, yAxis, data) => {
-  const freshPaintChunk = new PaintChunk({
-    x_axis: xAxis,
-    y_axis: yAxis,
-    owner: null,
-    accessType: null,
-    data,
-  });
+  return new Promise((resolve, reject) => {
+    const freshPaintChunk = new PaintChunk({
+      x_axis: xAxis,
+      y_axis: yAxis,
+      owner: null,
+      accessType: null,
+      data,
+    });
 
-  PaintChunk.findOneAndUpdate({
-    x_axis: xAxis,
-    y_axis: yAxis,
-  }, { data : data }).exec().then((foundCell) => {
-    if (foundCell === null) {
-      freshPaintChunk.save(function (err) {
-        if (err) {
-          debug(err);
+    PaintChunk.findOneAndUpdate({
+      x_axis: xAxis,
+      y_axis: yAxis,
+    }, { data: data }).exec().then((foundCell) => {
+      if (foundCell === null) {
+        freshPaintChunk.save(function (err) {
+          if (err) {
+            debug(err);
+            reject('findOne err1');
+            return null;
+          }
+          debug('fresh data cell saved!');
+        }).then(saved => saved, (err) => {
+          reject('findOne err2');
+          debug(`save err :'${err}`);
           return null;
-        }
-        debug('fresh data cell saved!');
-      }).then(saved => saved, (err) => {
-        debug(`save err :'${err}`);
-        return null;
-      });
-    } else {
-      return foundCell;
-    }
-  }, (err) => {
-    debug(`findOne err : ${err}`);
-    return null;
+        });
+      } else {
+        resolve(foundCell);
+        return foundCell;
+      }
+    }, (err) => {
+      debug(`findOne err : ${err}`);
+      reject('findOne err3');
+      return null;
+    });
   });
 };
 
