@@ -94,7 +94,7 @@ function changeModeToDrawingMode() {
 }
 
 function changeModeToNavigatingMode() {
-  console.log("clicked");
+  // console.log("clicked");
   canvas.isDrawingMode = false;
   canvas.defaultCursor = canvas.moveCursor;
 }
@@ -103,13 +103,13 @@ function changeModeToNavigatingMode() {
 $('#moveToCoord').click(() => {
   //const coordString = $('#moveToCoordInput').val();
   if (coordString == null) {
-    console.log('null coordString');
+    // console.log('null coordString');
   } else {
     
-    console.log(coordString);
+    // console.log(coordString);
   }
   
-  console.log(coordString);
+  // console.log(coordString);
   const inputArr = coordString.split(',');
   const inputX = parseInt(inputArr[0], 10);
   const inputY = parseInt(inputArr[0], 10);
@@ -153,21 +153,21 @@ function rgb2hex(rgb) {
 var drawCount = 0;
 
 $(document).keyup(function(event){
-  console.log(event);
+  // console.log(event);
 	if(event.keyCode === 90 && event.ctrlKey) {
-    console.log('ctrl z');
+    // console.log('ctrl z');
     unDo();
 	}
 });
 
 function unDo() {
   var objects = canvas.getObjects();
-  console.log(objects);
+  // console.log(objects);
   if(drawCount > 0) {
     for(var i = objects.length - 1; i > -1; i--) {
       if(objects[i].owner === guid) {
-        console.log('remove');
-        console.log(objects[i]);
+        // console.log('remove');
+        // console.log(objects[i]);
         removeFromRemote(objects[i]);
         canvas.remove(objects[i]);
         drawCount--;
@@ -188,7 +188,7 @@ function removeFromRemote(object) {
 
 //should Change
 function objectOutOfChunk(aCoords) {
-  console.log(aCoords);
+  // console.log(aCoords);
   if (aCoords.tl.x + startPoint.x >= chunk.x + 4096) {
     return true;
   } else if (aCoords.tl.y + startPoint.y >= chunk.y + 4096) {
@@ -216,15 +216,15 @@ const onObjectAdded = (e) => {
     e.target.selectable = false;
     e.target.owner = guid;
 
-    console.log('object added');
-    console.log(e.target);
+    // console.log('object added');
+    // console.log(e.target);
 
     const clonedObj = fabric.util.object.clone(e.target);
 
-    console.log(`clonedObj.left : ${clonedObj.left} , top : ${clonedObj.top}`);
+    // console.log(`clonedObj.left : ${clonedObj.left} , top : ${clonedObj.top}`);
     clonedObj.owner = guid;
 
-    console.log(`envelope x : ${getLTC(startPoint.x + e.target.aCoords.tl.x)} , y : ${getLTC(startPoint.y + e.target.aCoords.tl.y)}`);
+    // console.log(`envelope x : ${getLTC(startPoint.x + e.target.aCoords.tl.x)} , y : ${getLTC(startPoint.y + e.target.aCoords.tl.y)}`);
 
     const envelope = {
       xAxis: getLTC(startPoint.x + e.target.aCoords.tl.x),
@@ -236,7 +236,7 @@ const onObjectAdded = (e) => {
     };
     socket.emit('drawToChunk', envelope);
   } else {
-    console.log('object added from other');
+    // console.log('object added from other');
   }
 };
 
@@ -262,8 +262,8 @@ function fetchChunkSocket(x, y) {
 }
 
 socket.on('mainChunkSend', (data) => {
-  console.log('mainChunkSend');
-  console.log(data);
+  // console.log('mainChunkSend');
+  // console.log(data);
   canvas.off('object:added');
   canvas.clear();
   canvas.absolutePan(new fabric.Point(0, 0));
@@ -281,11 +281,11 @@ function fetchOtherChunkSocket(x, y) {
 
 socket.on('otherChunkSend', (data) => {
   const fc = document.createElement('canvas');
-  console.log('otherChunkSend');
-  console.log(data);
+  // console.log('otherChunkSend');
+  // console.log(data);
   const fetchCanvas = new fabric.Canvas(fc, { renderOnAddRemove: false });
   //change svg to json
-  console.log(`fetch from ${data.x},${data.y}`);
+  // console.log(`fetch from ${data.x},${data.y}`);
   
   $('.spinner').css('margin-left', (canvas.width / 2) - 20);
   $('.spinner').css('margin-top', (canvas.height / 2) - 20);
@@ -298,7 +298,7 @@ socket.on('otherChunkSend', (data) => {
   } else {
     fetchCanvas.loadFromJSON(data.json, () => {
       canvas.on('object:added', onObjectAdded);
-      console.log(`fetch done : ${data.x},${data.y}`);
+      // console.log(`fetch done : ${data.x},${data.y}`);
       $('#infotext').text('로딩 완료');
       $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-success btn-block');
       $('#infotext').animateCss('flash');
@@ -321,7 +321,7 @@ function fetchChunkFromOther(x, y) {
   const fc = document.createElement('canvas');
   // 131072 = 4096 * 32
   if (x < 0 || y < 0 || x > 131072 || y > 131072) {
-    console.log('here');
+    // console.log('here');
     const patternSourceCanvas = new fabric.StaticCanvas();
     const darkRect = new fabric.Rect({
       width: 32,
@@ -355,7 +355,7 @@ function fetchChunkFromOther(x, y) {
   } else {
     const fetchCanvas = new fabric.Canvas(fc, { renderOnAddRemove: false });
     //change svg to json
-    console.log(`fetch from ${x},${y}`);
+    // console.log(`fetch from ${x},${y}`);
     
     $('.spinner').css('margin-left', (canvas.width / 2) - 20);
     $('.spinner').css('margin-top', (canvas.height / 2) - 20);
@@ -363,7 +363,7 @@ function fetchChunkFromOther(x, y) {
       $('#infotext').text('로딩중');
       $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-danger btn-block');
       $('#infotext').animateCss('flash');
-      console.log(`fetching from other : ${x},${y}`);
+      // console.log(`fetching from other : ${x},${y}`);
     }).then((json) => {
       canvas.off('object:added');
       if(json == null) {
@@ -374,7 +374,7 @@ function fetchChunkFromOther(x, y) {
       } else {
         fetchCanvas.loadFromJSON(json, () => {
           canvas.on('object:added', onObjectAdded);
-          console.log(`fetch done : ${x},${y}`);
+          // console.log(`fetch done : ${x},${y}`);
           $('#infotext').text('로딩 완료');
           $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-success btn-block');
           $('#infotext').animateCss('flash');
@@ -399,7 +399,7 @@ function fetchChunkFromOtherSocket(x, y) {
   const fc = document.createElement('canvas');
   // 131072 = 4096 * 32
   if (x < 0 || y < 0 || x > 131072 || y > 131072) {
-    console.log('here');
+    // console.log('here');
     const patternSourceCanvas = new fabric.StaticCanvas();
     const darkRect = new fabric.Rect({
       width: 32,
@@ -443,39 +443,39 @@ function onResize() {
 }
 
 function joinRoom(x, y) {
-  console.log(x);
-  console.log(y);
-  console.log(`joinRoom : ${x},${y}`);
+  // console.log(x);
+  // console.log(y);
+  // console.log(`joinRoom : ${x},${y}`);
   socket.emit('joinRoom', { x, y });
 }
 
 function leaveRoom(x, y) {
-  console.log(`leaveRoom : ${x},${y}`);
+  // console.log(`leaveRoom : ${x},${y}`);
   socket.emit('leaveRoom', { x, y });
 }
 
 function init() {
   fetchChunkSocket(chunk.x, chunk.y);
-  console.log(`startpoint : ${startPoint.x},${startPoint.y}`);
+  // console.log(`startpoint : ${startPoint.x},${startPoint.y}`);
   joinRoom(chunk.x, chunk.y);
   onResize();
   $('#init-modal').modal({backdrop: 'static', keyboard: false});
 }
 
 function moveChunk(destX, destY) {
-  console.log(`destX,Y 1 : ${destX} , ${destY}`);
-  console.log(`chunkX,Y 1 : ${chunk.x} , ${chunk.y}`);
+  // console.log(`destX,Y 1 : ${destX} , ${destY}`);
+  // console.log(`chunkX,Y 1 : ${chunk.x} , ${chunk.y}`);
   leaveRoom(chunk.x, chunk.y);
   chunk.x = destX * 1;
   chunk.y = destY * 1;
-  console.log(`destX,Y 2 : ${destX} , ${destY}`);
-  console.log(`chunkX,Y 2 : ${chunk.x} , ${chunk.y}`);
+  // console.log(`destX,Y 2 : ${destX} , ${destY}`);
+  // console.log(`chunkX,Y 2 : ${chunk.x} , ${chunk.y}`);
   joinRoom(destX, destY);
   fetchChunk(destX, destY);
   startPoint.x = destX * 1;
   startPoint.y = destY * 1;
-  console.log(`destX,Y 3 : ${destX} , ${destY}`);
-  console.log(`chunkX,Y 3 : ${chunk.x} , ${chunk.y}`);
+  // console.log(`destX,Y 3 : ${destX} , ${destY}`);
+  // console.log(`chunkX,Y 3 : ${chunk.x} , ${chunk.y}`);
   currentChunks = {};
   onResize();
 }
@@ -483,8 +483,8 @@ function moveChunk(destX, destY) {
 let starttime;
 
 const onObjectFromOther = (data) => {
-  console.log('hello');
-  console.log(data);
+  // console.log('hello');
+  // console.log(data);
   $('#infotext').text('누군가 그리고있어요!');
   $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-success btn-block');
   $('#infotext').animateCss('jello');
@@ -503,14 +503,14 @@ const onObjectFromOther = (data) => {
 socket.on('objectFromOther', onObjectFromOther);
 
 const onUndoFromOther = (uid) => {
-  console.log(uid);
+  // console.log(uid);
   $('#infotext').text('누군가 그리고있어요!');
   $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-success btn-block');
   $('#infotext').animateCss('jello');
   let objects = canvas.getObjects();
   for(var i = objects.length - 1; i > -1; i--) {
     if(objects[i].owner === uid) {
-      console.log('remove');
+      // console.log('remove');
       canvas.remove(objects[i]);
       break;
     }
@@ -532,7 +532,7 @@ const touchLeave = Rx.Observable.fromEvent(canvas, 'touchleave');
 
 const subscribeTouchStart = touchStart.subscribe((e) => {
   e.preventDefault();
-  console.log(e);
+  // console.log(e);
   userNavDown(e.touches[0]);
 });
 const subscribeTouchMove = touchMove.subscribe((e) => {
@@ -562,11 +562,11 @@ function userNavDown(e) {
 canvas.on('mouse:down', (ew) => {
   if (ew.e instanceof MouseEvent) {
     const clickPoint = canvas.getPointer(ew.e);
-    console.log(`x: ${clickPoint.x + startPoint.x} , y: ${clickPoint.y + startPoint.y}`);
+    // console.log(`x: ${clickPoint.x + startPoint.x} , y: ${clickPoint.y + startPoint.y}`);
     userNavDown(ew.e);
   } else {
     const clickPoint = canvas.getPointer(ew.e.touches[0]);
-    console.log(`x: ${clickPoint.x + startPoint.x} , y: ${clickPoint.y + startPoint.y}`);
+    // console.log(`x: ${clickPoint.x + startPoint.x} , y: ${clickPoint.y + startPoint.y}`);
     userNavDown(ew.e.touches[0]);
   }
 });
@@ -609,7 +609,7 @@ function userNavUp(e) {
     chunk.y = nextChunk.y * 1;
     joinRoom(chunk.x, chunk.y);
     onResize();
-    console.log('different place');
+    // console.log('different place');
   }
 }
 
@@ -635,7 +635,7 @@ function zoomByMouseCoords(e, isZoomIn) {
       canvas.setZoom(canvas.getZoom() * 1.1);
       canvas.relativePan(new fabric.Point(canvas.getWidth() / 2, canvas.getHeight() / 2));
     } else {
-      console.log('no zoom any more');
+      // console.log('no zoom any more');
       canvas.setZoom(5);
       canvas.renderAll();
     }
@@ -646,7 +646,7 @@ function zoomByMouseCoords(e, isZoomIn) {
       canvas.setZoom(canvas.getZoom() * 0.9);
       canvas.relativePan(new fabric.Point(canvas.getWidth() / 2, canvas.getHeight() / 2));
     } else {
-      console.log('no zoom any more');
+      // console.log('no zoom any more');
       canvas.setZoom(0.04);
     }
     canvas.renderAll();
@@ -669,13 +669,13 @@ function updateCanvasMove() {
     chunk.y = nextChunk.y * 1;
     joinRoom(chunk.x, chunk.y);
     onResize();
-    console.log('different place');
+    // console.log('different place');
   }
   for (let i = getLTC(vptc.tl.x) + startPoint.x; i <= getLTC(vptc.br.x) + startPoint.x; i += 4096) {
     for (let j = getLTC(vptc.tl.y) + startPoint.y; j <= getLTC(vptc.br.y) + startPoint.y; j += 4096) {
       //console.log(`checking : ${i},${j}`);
       if (currentChunks[`${i},${j}`] !== true) {
-        console.log(`adding : ${i},${j}`);
+        // console.log(`adding : ${i},${j}`);
         //fetchChunkFromOther(i, j);
         fetchChunkFromOtherSocket(i, j);
         currentChunks[`${i},${j}`] = true;

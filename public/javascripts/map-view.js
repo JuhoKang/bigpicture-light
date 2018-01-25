@@ -70,5 +70,5 @@ mapCanvas.setBackgroundColor('rgba(255,255,255,1)', mapCanvas.renderAll.bind(map
 function getCurCenter() {
   const curCenterX = (canvas.vptCoords.tr.x + canvas.vptCoords.tl.x) / 2;
   const curCenterY = (canvas.vptCoords.bl.y + canvas.vptCoords.tl.y) / 2;
-  console.log(`curCenter : ${curCenterX+startPoint.x},${curCenterY+startPoint.y}`);
+  // console.log(`curCenter : ${curCenterX+startPoint.x},${curCenterY+startPoint.y}`);
 }

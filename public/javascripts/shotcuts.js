@@ -57,7 +57,7 @@ $(document).keyup(function(event) {
 				canvas.setZoom(canvas.getZoom() * 1.1);
 				canvas.relativePan(new fabric.Point(canvas.getWidth() / 2, canvas.getHeight() / 2));
 			} else {
-				console.log('no zoom any more');
+				// console.log('no zoom any more');
 				canvas.setZoom(5);
 				canvas.renderAll();
 			}
@@ -73,7 +73,7 @@ $(document).keyup(function(event) {
 				canvas.setZoom(canvas.getZoom() * 0.9);
 				canvas.relativePan(new fabric.Point(canvas.getWidth() / 2, canvas.getHeight() / 2));
 			} else {
-				console.log('no zoom any more');
+				// console.log('no zoom any more');
 				canvas.setZoom(0.04);
 			}
 			canvas.renderAll();
