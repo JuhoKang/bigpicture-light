@@ -7,6 +7,24 @@ let type = 'all';
 let id;
 let uid = $('#uid').val();
 
+$('#chatting-btn').click(function(){
+  if($(this).val()=="off"){
+    $(this).val("on");
+    var fullWidth = window.innerWidth;
+    var w;
+    if(fullWidth/3 > 300){
+      w = fullWidth/3;
+    }
+    else{
+      w = 300;
+    }
+    $('#sidebar').animate({'width':w},700);
+  }else{
+    $(this).val("off");
+    $('#sidebar').animate({'width':0},700);
+  }
+});
+
 $('#play').click(function() {
   if($('#nickname').val() !== ''){
     name = $('#nickname').val();

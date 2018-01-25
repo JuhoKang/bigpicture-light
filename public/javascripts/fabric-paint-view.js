@@ -293,14 +293,14 @@ socket.on('otherChunkSend', (data) => {
   if (data.json == null) {
     canvas.on('object:added', onObjectAdded);
     $('#infotext').text('로딩 완료');
-    $('#infotext').attr('class', 'col-lg-3 col-md-12 col-sm-12 alert alert-success btn-block');
+    $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-success btn-block');
     $('#infotext').animateCss('flash');
   } else {
     fetchCanvas.loadFromJSON(data.json, () => {
       canvas.on('object:added', onObjectAdded);
       console.log(`fetch done : ${data.x},${data.y}`);
       $('#infotext').text('로딩 완료');
-      $('#infotext').attr('class', 'col-lg-3 col-md-12 col-sm-12 alert alert-success btn-block');
+      $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-success btn-block');
       $('#infotext').animateCss('flash');
     }, (o, object) => {
       object.left += data.x - startPoint.x;
@@ -361,7 +361,7 @@ function fetchChunkFromOther(x, y) {
     $('.spinner').css('margin-top', (canvas.height / 2) - 20);
     $.get(`/api/paintchunk/json/coord/${x}/${y}`, function() {
       $('#infotext').text('로딩중');
-      $('#infotext').attr('class', 'col-lg-3 col-md-12 col-sm-12 alert alert-danger btn-block');
+      $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-danger btn-block');
       $('#infotext').animateCss('flash');
       console.log(`fetching from other : ${x},${y}`);
     }).then((json) => {
@@ -369,14 +369,14 @@ function fetchChunkFromOther(x, y) {
       if(json == null) {
         canvas.on('object:added', onObjectAdded);
         $('#infotext').text('로딩 완료');
-        $('#infotext').attr('class', 'col-lg-3 col-md-12 col-sm-12 alert alert-success btn-block');
+        $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-success btn-block');
         $('#infotext').animateCss('flash');
       } else {
         fetchCanvas.loadFromJSON(json, () => {
           canvas.on('object:added', onObjectAdded);
           console.log(`fetch done : ${x},${y}`);
           $('#infotext').text('로딩 완료');
-          $('#infotext').attr('class', 'col-lg-3 col-md-12 col-sm-12 alert alert-success btn-block');
+          $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-success btn-block');
           $('#infotext').animateCss('flash');
         }, (o, object) => {
           object.left += x - startPoint.x;
@@ -486,7 +486,7 @@ const onObjectFromOther = (data) => {
   console.log('hello');
   console.log(data);
   $('#infotext').text('누군가 그리고있어요!');
-  $('#infotext').attr('class', 'col-lg-3 col-md-12 col-sm-12 alert alert-success btn-block');
+  $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-success btn-block');
   $('#infotext').animateCss('jello');
   fabric.util.enlivenObjects([data.data], (objects) => {
     objects.forEach((obj) => {
@@ -705,7 +705,7 @@ function onWheel(e) {
     zoomByMouseCoords(e, false);
     updateCanvasMove();
     $('#infotext').text('줌 아웃');
-    $('#infotext').attr('class', 'col-lg-3 col-md-12 col-sm-12 alert alert-primary btn-block');
+    $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-primary btn-block');
     $('#infotext').animateCss('fadeIn');
     //canvas.setZoom(canvas.getZoom() * 0.9);
   } else {
@@ -713,7 +713,7 @@ function onWheel(e) {
     //console.log('wheel foward');
     updateCanvasMove();
     $('#infotext').text('줌 인');
-    $('#infotext').attr('class', 'col-lg-3 col-md-12 col-sm-12 alert alert-primary btn-block');
+    $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-primary btn-block');
     $('#infotext').animateCss('fadeIn');
     zoomByMouseCoords(e, true);
     //canvas.setZoom(canvas.getZoom() * 1.1);

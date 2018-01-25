@@ -4,29 +4,21 @@ html
     title= title
     meta(charset='utf-8')
     meta(http-equiv='X-UA-Compatible' content='IE=edge')
-    // Bootstrap core CSS
-    link(href='/vendor/bootstrap/css/bootstrap.css', rel='stylesheet')
-    // Custom fonts for this template
-    link(href='/vendor/font-awesome/css/font-awesome.min.css', rel='stylesheet', type='text/css')
-    link(href='https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic', rel='stylesheet', type='text/css')
-    // Custom styles for this template
-    link(href='/css/landing-page.css', rel='stylesheet')
     // mobile
     meta(name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=no, shrink-to-fit=no')
-    script(type="text/javascript" src="/scripts/rx/dist/rx.all.js")
-    script(type="text/javascript" src="/scripts/socket.io-client/dist/socket.io.js")
-    link(rel='stylesheet' href='/stylesheets/teststyle.css')
+    // CSS
+    link(href='/vendor/bootstrap/css/bootstrap.css', rel='stylesheet')
+    link(href='/vendor/font-awesome/css/font-awesome.min.css', rel='stylesheet', type='text/css')
     link(rel='stylesheet' href='/scripts/nouislider/distribute/nouislider.min.css')
     link(rel='stylesheet' href='/vendor/huebee/huebee.min.css')
     link(rel='stylesheet' href='/scripts/animate.css/animate.min.css')
-
-    //- script(src="https://code.jquery.com/jquery-3.2.1.min.js")
-    // Bootstrap core JavaScript
+    link(rel='stylesheet' href='/css/style.css')
+    // JavaScript
+    script(type="text/javascript" src="/scripts/rx/dist/rx.all.js")
+    script(type="text/javascript" src="/scripts/socket.io-client/dist/socket.io.js")
     script(src='/vendor/jquery/jquery.min.js')
-    script(src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous")
     script(src='/vendor/popper/popper.min.js')
     script(src='/vendor/bootstrap/js/bootstrap.min.js')
-    script(src='/javascripts/slidedown.js')
   body
     block header
       .modal#init-modal(tabindex='-1', role='dialog', aria-labelledby='myLargeModalLabel', aria-hidden='true')
@@ -40,4 +32,3 @@ html
             .modal-footer
               input(type="button" value="Play")#play.btn.btn-block.btn-dark
     block content
-    block footer

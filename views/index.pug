@@ -1,7 +1,7 @@
 extends layout
 block content
 
-	section.content-section-b
+	#main
 		.container-fluid
 			.row
 				.col-md-12
@@ -13,16 +13,17 @@ block content
 						button.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark#pencilStyle(onclick="changeModeToDrawingMode()")
 							span.fa.fa-paint-brush
 							|  (D)
-						button.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark(onclick="getElementById('drawing-color').click()")
+						div.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark.color-picker-btn(onclick="getElementById('drawing-color').click()")
 							input.color-input(value="#000000")
-						button.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark#remote-control-btn
+						div.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark#remote-control-btn(style="padding-top:5px")
 							.btn-block#drawing-line-width
-						button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark#undo-button(style="margin-top:0rem" onclick="unDo()") undo (Ctrl+Z)
-						button.col-lg-1.col-md-1.col-sm-3.col-6.btn-md.btn-dark#map-toggle(style="margin-top:0rem") 지도 (M)
-						button.col-lg-1.col-md-1.col-sm-3.col-6.btn-md.btn-dark#chatting-btn(value="off" style="margin-top:0rem") 채팅창 (C)
-						button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark(style="margin-top:0rem") GitHub
-						button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark.my-nick-name(data-toggle='modal', data-target='#init-modal' style="margin-top:0rem") 비회원
-						.col-lg-3.col-md-12.col-sm-12.alert.alert-secondary.btn-block#infotext(style='margin-bottom:0rem; margin-top:0rem; padding:0 0 0 5px') 환영합니다!
+						button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark#undo-button(onclick="unDo()")
+							span.fa.fa-undo
+							|  (Ctrl+Z)
+						button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark#map-toggle 지도 (M)
+						button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark#chatting-btn(value="off") 채팅창 (C)
+						button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark(onclick="location.href='https://github.com/JuhoKang/bigpicture-light'") GitHub
+						.col-lg-4.col-md-12.col-sm-12.alert.alert-secondary.btn-block#infotext(style='margin-bottom:0rem; margin-top:0rem; padding:0 0 0 5px') 환영합니다!
 					.row
 						.col-lg-12
 							.row#canvas-container-div
@@ -38,23 +39,3 @@ block content
 	script(type="text/javascript" src="/javascripts/map-view.js")
 	script(type='text/javascript' src="/javascripts/chatting.js")
 	script(type='text/javascript' src="/javascripts/shotcuts.js")
-
-	script.
-		$('#chatting-btn').click(function(){
-				if($(this).val()=="off"){
-					$(this).val("on");
-					var fullWidth = window.innerWidth;
-					var w;
-					if(fullWidth/3 > 300){
-						w = fullWidth/3;
-					}
-					else{
-						w = 300;
-					}
-					$('#sidebar').animate({'width':w},700);
-				}else{
-					$(this).val("off");
-					$('#sidebar').animate({'width':0},700);
-				}
-			});
-
