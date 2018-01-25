@@ -9,6 +9,7 @@ body, h1, h2, h3, h4, h5, h6 {
 }
 #main {
   padding: 0;
+  width: 100%;
   border-top: 1px solid #e7e7e7;
   border-bottom: 1px solid #e7e7e7;
 }
@@ -87,12 +88,45 @@ canvas {
 #map {
   
 }
-#sidebar{
-  position: absolute;
-  right:0px;
-  z-index:1000;
-  width:0px;
-  height:100%;
+@media ( max-width: 576px ) {
+  #sidebar{
+    position: absolute;
+    top: 117.5px;
+    right:0px;
+    z-index:1000;
+    width:0px;
+    height:calc(100% - 117.5px);
+  }
+}
+@media ( min-width: 576px ) {
+	#sidebar{
+    position: absolute;
+    top: 87.5px;
+    right:0px;
+    z-index:1000;
+    width:0px;
+    height:calc(100% - 87.5px);
+  }
+}
+@media ( min-width: 768px ) {
+	#sidebar{
+    position: absolute;
+    top: 57.5px;
+    right:0px;
+    z-index:1000;
+    width:0px;
+    height:calc(100% - 57.5px);
+  }
+}
+@media ( min-width: 992px ) {
+	#sidebar{
+    position: absolute;
+    top: 31.5px;
+    right:0px;
+    z-index:1000;
+    width:0px;
+    height:calc(100% - 31.5px);
+  }
 }
 .color-picker-btn{
   padding:0;
