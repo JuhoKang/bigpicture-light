@@ -6,47 +6,40 @@
   noUiSlider:true
   Huebee:true
   */
-
-
 const socket = io();
 const canvas = new fabric.Canvas('c', {
   isDrawingMode: true,
 });
+
 canvas.selection = false;
+
+const CANVAS_SIZE = 4096;
+
 let chunk = {
-  x: 4096 * 10,
-  y: 4096 * 10,
+  x: CANVAS_SIZE * 10,
+  y: CANVAS_SIZE * 10,
 };
 
 let startPoint = {
-  x: 4096 * 10,
-  y: 4096 * 10,
+  x: CANVAS_SIZE * 10,
+  y: CANVAS_SIZE * 10,
 };
-
-cSize = {
-  x: 1,
-  y: 1,
-};
-
-
 
 // get Left Top Coordinate
 function getLTC(num) {
   if (num >= 0) {
-    return num - (num % 4096);
+    return num - (num % CANVAS_SIZE);
   } else {
-    if (num % 4096 !== 0) {
-      return num - (num % 4096) - 4096;
+    if (num % CANVAS_SIZE !== 0) {
+      return num - (num % CANVAS_SIZE) - CANVAS_SIZE;
     } else {
       return num;
     }
   }
 }
 
-$('.spinner').hide();
-
+//---------------- draw line width slider ----- start
 const lineWidthSlider = document.getElementById('drawing-line-width');
-//const lineWidthInput = document.getElementById('drawing-line-width-input');
 
 noUiSlider.create(lineWidthSlider, {
   start: [1],
@@ -68,15 +61,7 @@ noUiSlider.create(lineWidthSlider, {
 lineWidthSlider.noUiSlider.on('change', (e) => {
   canvas.freeDrawingBrush.width = parseInt(e, 10) || 1;
 });
-
-lineWidthSlider.noUiSlider.on('slide', (e) => {
-  //lineWidthInput.value = parseInt(e, 10) || 1;
-});
-
-//not changing uislider
-/*lineWidthInput.addEventListener('change', () => {
-  lineWidthSlider.noUiSlider.set(this.value);
-});*/
+//---------------- draw line width slider ----- end
 
 fabric.Object.prototype.transparentCorners = false;
 
@@ -94,37 +79,32 @@ function changeModeToDrawingMode() {
 }
 
 function changeModeToNavigatingMode() {
-  // console.log("clicked");
   canvas.isDrawingMode = false;
   canvas.defaultCursor = canvas.moveCursor;
 }
 
 // needs validation
-$('#moveToCoord').click(() => {
-  //const coordString = $('#moveToCoordInput').val();
+// not used
+function moveToCoord() {
   if (coordString == null) {
     // console.log('null coordString');
   } else {
-    
     // console.log(coordString);
   }
-  
-  // console.log(coordString);
   const inputArr = coordString.split(',');
   const inputX = parseInt(inputArr[0], 10);
   const inputY = parseInt(inputArr[0], 10);
   if (inputArr[0] != null) {
-    moveChunk(inputArr[0] * 4096, inputArr[1] * 4096);
+    moveChunk(inputArr[0] * CANVAS_SIZE, inputArr[1] * CANVAS_SIZE);
   }
-  //updateCanvasMove();
-});
+}
 
 var hueb = new Huebee('.color-input', {
   notation: 'hex',
   staticOpen: false,
 });
 
-hueb.on('change', function(color, hue, sat, lum) {
+hueb.on('change', function (color, hue, sat, lum) {
   canvas.freeDrawingBrush.color = color;
 });
 
@@ -145,27 +125,27 @@ if (canvas.freeDrawingBrush) {
 function rgb2hex(rgb) {
   rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
   function hex(x) {
-      return (`0${parseInt(x, 10).toString(16)}`).slice(-2);
+    return (`0${parseInt(x, 10).toString(16)}`).slice(-2);
   }
   return `#${hex(rgb[1])}${hex(rgb[2])}${hex(rgb[3])}`;
 }
 
 var drawCount = 0;
 
-$(document).keyup(function(event){
+$(document).keyup(function (event) {
   // console.log(event);
-	if(event.keyCode === 90 && event.ctrlKey) {
+  if (event.keyCode === 90 && event.ctrlKey) {
     // console.log('ctrl z');
     unDo();
-	}
+  }
 });
 
 function unDo() {
   var objects = canvas.getObjects();
   // console.log(objects);
-  if(drawCount > 0) {
-    for(var i = objects.length - 1; i > -1; i--) {
-      if(objects[i].owner === guid) {
+  if (drawCount > 0) {
+    for (var i = objects.length - 1; i > -1; i--) {
+      if (objects[i].owner === guid) {
         // console.log('remove');
         // console.log(objects[i]);
         removeFromRemote(objects[i]);
@@ -183,15 +163,15 @@ function removeFromRemote(object) {
     yAxis: getLTC(startPoint.y + object.aCoords.tl.y),
     uid: guid,
   };
-    socket.emit('removeObject', envelope);
+  socket.emit('removeObject', envelope);
 }
 
 //should Change
 function objectOutOfChunk(aCoords) {
   // console.log(aCoords);
-  if (aCoords.tl.x + startPoint.x >= chunk.x + 4096) {
+  if (aCoords.tl.x + startPoint.x >= chunk.x + CANVAS_SIZE) {
     return true;
-  } else if (aCoords.tl.y + startPoint.y >= chunk.y + 4096) {
+  } else if (aCoords.tl.y + startPoint.y >= chunk.y + CANVAS_SIZE) {
     return true;
   } else if (aCoords.br.x + startPoint.x < chunk.x) {
     return true;
@@ -204,7 +184,7 @@ function objectOutOfChunk(aCoords) {
 const guid = uuidv4();
 
 function uuidv4() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
     var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
     return v.toString(16);
   });
@@ -286,29 +266,23 @@ socket.on('otherChunkSend', (data) => {
   const fetchCanvas = new fabric.Canvas(fc, { renderOnAddRemove: false });
   //change svg to json
   // console.log(`fetch from ${data.x},${data.y}`);
-  
-  $('.spinner').css('margin-left', (canvas.width / 2) - 20);
-  $('.spinner').css('margin-top', (canvas.height / 2) - 20);
+
   canvas.off('object:added');
   if (data.json == null) {
     canvas.on('object:added', onObjectAdded);
-    $('#infotext').text('로딩 완료');
-    $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-success btn-block');
-    $('#infotext').animateCss('flash');
+    changeInfoText('로딩 완료', 'flash', 'alert-success');
   } else {
     fetchCanvas.loadFromJSON(data.json, () => {
       canvas.on('object:added', onObjectAdded);
       // console.log(`fetch done : ${data.x},${data.y}`);
-      $('#infotext').text('로딩 완료');
-      $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-success btn-block');
-      $('#infotext').animateCss('flash');
+      changeInfoText('로딩 완료', 'flash', 'alert-success');
     }, (o, object) => {
       object.left += data.x - startPoint.x;
       object.top += data.y - startPoint.y;
       object.isNotMine = true;
       canvas.add(object);
     });
-      
+
     fetchCanvas.forEachObject((o) => {
       o.isNotMine = true;
       o.selectable = false;
@@ -319,7 +293,7 @@ socket.on('otherChunkSend', (data) => {
 
 function fetchChunkFromOther(x, y) {
   const fc = document.createElement('canvas');
-  // 131072 = 4096 * 32
+  // 131072 = CANVAS_SIZE * 32
   if (x < 0 || y < 0 || x > 131072 || y > 131072) {
     // console.log('here');
     const patternSourceCanvas = new fabric.StaticCanvas();
@@ -343,8 +317,8 @@ function fetchChunkFromOther(x, y) {
     });
 
     const rect = new fabric.Rect({
-      width: 4096,
-      height: 4096,
+      width: CANVAS_SIZE,
+      height: CANVAS_SIZE,
       left: x - startPoint.x,
       top: y - startPoint.y,
       fill: pattern,
@@ -356,48 +330,40 @@ function fetchChunkFromOther(x, y) {
     const fetchCanvas = new fabric.Canvas(fc, { renderOnAddRemove: false });
     //change svg to json
     // console.log(`fetch from ${x},${y}`);
-    
-    $('.spinner').css('margin-left', (canvas.width / 2) - 20);
-    $('.spinner').css('margin-top', (canvas.height / 2) - 20);
-    $.get(`/api/paintchunk/json/coord/${x}/${y}`, function() {
-      $('#infotext').text('로딩중');
-      $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-danger btn-block');
-      $('#infotext').animateCss('flash');
+
+    $.get(`/api/paintchunk/json/coord/${x}/${y}`, function () {
+      changeInfoText('로딩중', 'shake', 'alert-danger');
       // console.log(`fetching from other : ${x},${y}`);
     }).then((json) => {
       canvas.off('object:added');
-      if(json == null) {
+      if (json == null) {
         canvas.on('object:added', onObjectAdded);
-        $('#infotext').text('로딩 완료');
-        $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-success btn-block');
-        $('#infotext').animateCss('flash');
+        changeInfoText('로딩 완료', 'flash', 'alert-success');
       } else {
         fetchCanvas.loadFromJSON(json, () => {
           canvas.on('object:added', onObjectAdded);
           // console.log(`fetch done : ${x},${y}`);
-          $('#infotext').text('로딩 완료');
-          $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-success btn-block');
-          $('#infotext').animateCss('flash');
+          changeInfoText('로딩 완료', 'flash', 'alert-success');
         }, (o, object) => {
           object.left += x - startPoint.x;
           object.top += y - startPoint.y;
           object.isNotMine = true;
           canvas.add(object);
         });
-          
+
         fetchCanvas.forEachObject((o) => {
           o.isNotMine = true;
           o.selectable = false;
         });
       }
-      
+
     });
   }
 }
 
 function fetchChunkFromOtherSocket(x, y) {
   const fc = document.createElement('canvas');
-  // 131072 = 4096 * 32
+  // 131072 = CANVAS_SIZE * 32
   if (x < 0 || y < 0 || x > 131072 || y > 131072) {
     // console.log('here');
     const patternSourceCanvas = new fabric.StaticCanvas();
@@ -421,8 +387,8 @@ function fetchChunkFromOtherSocket(x, y) {
     });
 
     const rect = new fabric.Rect({
-      width: 4096,
-      height: 4096,
+      width: CANVAS_SIZE,
+      height: CANVAS_SIZE,
       left: x - startPoint.x,
       top: y - startPoint.y,
       fill: pattern,
@@ -436,21 +402,15 @@ function fetchChunkFromOtherSocket(x, y) {
 }
 
 function onResize() {
-  cSize.x = $('#c').parent().parent().width();
-  cSize.y = window.innerHeight - $('#c').offset().top;
-  canvas.setWidth(cSize.x);
-  canvas.setHeight(cSize.y);
+  canvas.setWidth($('#c').parent().parent().width());
+  canvas.setHeight(window.innerHeight - $('#c').offset().top);
 }
 
 function joinRoom(x, y) {
-  // console.log(x);
-  // console.log(y);
-  // console.log(`joinRoom : ${x},${y}`);
   socket.emit('joinRoom', { x, y });
 }
 
 function leaveRoom(x, y) {
-  // console.log(`leaveRoom : ${x},${y}`);
   socket.emit('leaveRoom', { x, y });
 }
 
@@ -459,7 +419,7 @@ function init() {
   // console.log(`startpoint : ${startPoint.x},${startPoint.y}`);
   joinRoom(chunk.x, chunk.y);
   onResize();
-  $('#init-modal').modal({backdrop: 'static', keyboard: false});
+  $('#init-modal').modal({ backdrop: 'static', keyboard: false });
 }
 
 function moveChunk(destX, destY) {
@@ -482,12 +442,14 @@ function moveChunk(destX, destY) {
 
 let starttime;
 
+function changeInfoText(message, animateMethod, alertType) {
+  $('#infotext').text(message);
+  $('#infotext').attr('class', `col-lg-4 col-md-12 col-sm-12 alert ${alertType} btn-block`);
+  $('#infotext').animateCss(animateMethod);
+}
+
 const onObjectFromOther = (data) => {
-  // console.log('hello');
-  // console.log(data);
-  $('#infotext').text('누군가 그리고있어요!');
-  $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-success btn-block');
-  $('#infotext').animateCss('jello');
+  changeInfoText('누군가 그리고있어요!', 'jello', 'alert-info');
   fabric.util.enlivenObjects([data.data], (objects) => {
     objects.forEach((obj) => {
       const fromOther = obj;
@@ -503,14 +465,10 @@ const onObjectFromOther = (data) => {
 socket.on('objectFromOther', onObjectFromOther);
 
 const onUndoFromOther = (uid) => {
-  // console.log(uid);
-  $('#infotext').text('누군가 그리고있어요!');
-  $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-success btn-block');
-  $('#infotext').animateCss('jello');
+  changeInfoText('누군가 그리고있어요!', 'jello', 'alert-info');
   let objects = canvas.getObjects();
-  for(var i = objects.length - 1; i > -1; i--) {
-    if(objects[i].owner === uid) {
-      // console.log('remove');
+  for (var i = objects.length - 1; i > -1; i--) {
+    if (objects[i].owner === uid) {
       canvas.remove(objects[i]);
       break;
     }
@@ -521,9 +479,6 @@ socket.on('undoFromOther', onUndoFromOther);
 
 let isPanning = false;
 let beforePoint;
-// ew is eventWrapper. ew.e is mouseevent
-
-// need smooth moving like degak (go left up if left full go up)
 
 const touchStart = Rx.Observable.fromEvent(canvas, 'touchstart');
 const touchMove = Rx.Observable.fromEvent(canvas, 'touchmove');
@@ -532,7 +487,6 @@ const touchLeave = Rx.Observable.fromEvent(canvas, 'touchleave');
 
 const subscribeTouchStart = touchStart.subscribe((e) => {
   e.preventDefault();
-  // console.log(e);
   userNavDown(e.touches[0]);
 });
 const subscribeTouchMove = touchMove.subscribe((e) => {
@@ -671,8 +625,8 @@ function updateCanvasMove() {
     onResize();
     // console.log('different place');
   }
-  for (let i = getLTC(vptc.tl.x) + startPoint.x; i <= getLTC(vptc.br.x) + startPoint.x; i += 4096) {
-    for (let j = getLTC(vptc.tl.y) + startPoint.y; j <= getLTC(vptc.br.y) + startPoint.y; j += 4096) {
+  for (let i = getLTC(vptc.tl.x) + startPoint.x; i <= getLTC(vptc.br.x) + startPoint.x; i += CANVAS_SIZE) {
+    for (let j = getLTC(vptc.tl.y) + startPoint.y; j <= getLTC(vptc.br.y) + startPoint.y; j += CANVAS_SIZE) {
       //console.log(`checking : ${i},${j}`);
       if (currentChunks[`${i},${j}`] !== true) {
         // console.log(`adding : ${i},${j}`);
@@ -689,11 +643,11 @@ function updateCanvasMove() {
 
 $.fn.extend({
   animateCss: function (animationName) {
-      var animationEnd = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
-      this.addClass('animated ' + animationName).one(animationEnd, function() {
-          $(this).removeClass('animated ' + animationName);
-      });
-      return this;
+    var animationEnd = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
+    this.addClass('animated ' + animationName).one(animationEnd, function () {
+      $(this).removeClass('animated ' + animationName);
+    });
+    return this;
   },
 });
 
@@ -704,17 +658,13 @@ function onWheel(e) {
     //console.log('wheel back');
     zoomByMouseCoords(e, false);
     updateCanvasMove();
-    $('#infotext').text('줌 아웃');
-    $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-primary btn-block');
-    $('#infotext').animateCss('fadeIn');
+    changeInfoText('줌 아웃', 'fadeIn', 'alert-primary');
     //canvas.setZoom(canvas.getZoom() * 0.9);
   } else {
     //zoomByMouseCoords(e, false);
     //console.log('wheel foward');
     updateCanvasMove();
-    $('#infotext').text('줌 인');
-    $('#infotext').attr('class', 'col-lg-4 col-md-12 col-sm-12 alert alert-primary btn-block');
-    $('#infotext').animateCss('fadeIn');
+    changeInfoText('줌 인', 'fadeIn', 'alert-primary');
     zoomByMouseCoords(e, true);
     //canvas.setZoom(canvas.getZoom() * 1.1);
   }
