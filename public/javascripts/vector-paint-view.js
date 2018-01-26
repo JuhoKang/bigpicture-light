@@ -25,6 +25,8 @@ let startPoint = {
   y: CANVAS_SIZE * 10,
 };
 
+var currentChunks = {};
+
 // get Left Top Coordinate
 function getLTC(num) {
   if (num >= 0) {
@@ -64,14 +66,6 @@ lineWidthSlider.noUiSlider.on('change', (e) => {
 //---------------- draw line width slider ----- end
 
 fabric.Object.prototype.transparentCorners = false;
-
-const drawingModeEl = document.getElementById('changeMode');
-const drawingColorEl = document.getElementById('drawing-color');
-const drawingShadowColorEl = document.getElementById('drawing-shadow-color');
-const pencilButton = document.getElementById('pencilStyle');
-const brushButton = document.getElementById('brushStyle');
-
-const changeButton = document.getElementById('changeButton');
 
 function changeModeToDrawingMode() {
   canvas.isDrawingMode = true;
@@ -120,14 +114,6 @@ if (canvas.freeDrawingBrush) {
     affectStroke: true,
     color: '#000000',
   });
-}
-
-function rgb2hex(rgb) {
-  rgb = rgb.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
-  function hex(x) {
-    return (`0${parseInt(x, 10).toString(16)}`).slice(-2);
-  }
-  return `#${hex(rgb[1])}${hex(rgb[2])}${hex(rgb[3])}`;
 }
 
 var drawCount = 0;
@@ -195,17 +181,11 @@ const onObjectAdded = (e) => {
     drawCount += 1;
     e.target.selectable = false;
     e.target.owner = guid;
-
-    // console.log('object added');
     // console.log(e.target);
-
     const clonedObj = fabric.util.object.clone(e.target);
-
     // console.log(`clonedObj.left : ${clonedObj.left} , top : ${clonedObj.top}`);
     clonedObj.owner = guid;
-
     // console.log(`envelope x : ${getLTC(startPoint.x + e.target.aCoords.tl.x)} , y : ${getLTC(startPoint.y + e.target.aCoords.tl.y)}`);
-
     const envelope = {
       xAxis: getLTC(startPoint.x + e.target.aCoords.tl.x),
       yAxis: getLTC(startPoint.y + e.target.aCoords.tl.y),
@@ -576,38 +556,32 @@ canvas.on('mouse:up', (ew) => {
   canvas.renderAll();
 });
 
-let canWheel = true;
-canvas.on('mouse:wheel', (ew) => {
-  onWheel(ew.e);
-});
+//not used
+// function zoomByMouseCoords(e, isZoomIn) {
+//   const pointer = canvas.getPointer(e);
+//   if (isZoomIn) {
+//     if (canvas.getZoom() < 5) {
+//       canvas.absolutePan(new fabric.Point(canvas.getZoom() * pointer.x, canvas.getZoom() * pointer.y));
+//       canvas.setZoom(canvas.getZoom() * 1.1);
+//       canvas.relativePan(new fabric.Point(canvas.getWidth() / 2, canvas.getHeight() / 2));
+//     } else {
+//       // console.log('no zoom any more');
+//       canvas.setZoom(5);
+//       canvas.renderAll();
+//     }
+//   } else {
+//     if (canvas.getZoom() > 0.04) {
+//       canvas.absolutePan(new fabric.Point(canvas.getZoom() * pointer.x, canvas.getZoom() * pointer.y));
+//       canvas.setZoom(canvas.getZoom() * 0.9);
+//       canvas.relativePan(new fabric.Point(canvas.getWidth() / 2, canvas.getHeight() / 2));
+//     } else {
+//       // console.log('no zoom any more');
+//       canvas.setZoom(0.04);
+//     }
+//     canvas.renderAll();
+//   }
+// }
 
-function zoomByMouseCoords(e, isZoomIn) {
-  const pointer = canvas.getPointer(e);
-  if (isZoomIn) {
-    if (canvas.getZoom() < 5) {
-      canvas.absolutePan(new fabric.Point(canvas.getZoom() * pointer.x, canvas.getZoom() * pointer.y));
-      canvas.setZoom(canvas.getZoom() * 1.1);
-      canvas.relativePan(new fabric.Point(canvas.getWidth() / 2, canvas.getHeight() / 2));
-    } else {
-      // console.log('no zoom any more');
-      canvas.setZoom(5);
-      canvas.renderAll();
-    }
-
-  } else {
-    if (canvas.getZoom() > 0.04) {
-      canvas.absolutePan(new fabric.Point(canvas.getZoom() * pointer.x, canvas.getZoom() * pointer.y));
-      canvas.setZoom(canvas.getZoom() * 0.9);
-      canvas.relativePan(new fabric.Point(canvas.getWidth() / 2, canvas.getHeight() / 2));
-    } else {
-      // console.log('no zoom any more');
-      canvas.setZoom(0.04);
-    }
-    canvas.renderAll();
-  }
-}
-
-let currentChunks = {};
 function updateCanvasMove() {
 
   const vptc = canvas.vptCoords;
@@ -641,6 +615,49 @@ function updateCanvasMove() {
   moveMapPointer(curCenterX, curCenterY);
 }
 
+function zoomToCenter(isZoomIn) {
+  if (isZoomIn) {
+    if (canvas.getZoom() < 5) {
+      canvas.zoomToPoint(new fabric.Point(canvas.width / 2, canvas.height / 2), canvas.getZoom() * 1.1);
+    } else {
+      // console.log('no zoom any more');
+      canvas.setZoom(5);
+      canvas.renderAll();
+    }
+
+  } else {
+    if (canvas.getZoom() > 0.04) {
+      canvas.zoomToPoint(new fabric.Point(canvas.width / 2, canvas.height / 2), canvas.getZoom() * 0.9);
+    } else {
+      // console.log('no zoom any more');
+      canvas.setZoom(0.04);
+    }
+    canvas.renderAll();
+  }
+}
+
+function onWheel(e) {
+  if (!canWheel) { return; }
+  canWheel = false;
+  if (e.deltaY > 0) {
+    //console.log('wheel back');
+    zoomToCenter(false);
+    updateCanvasMove();
+    changeInfoText('줌 아웃', 'fadeIn', 'alert-primary');
+  } else {
+    //console.log('wheel foward');
+    zoomToCenter(true);
+    updateCanvasMove();
+    changeInfoText('줌 인', 'fadeIn', 'alert-primary');
+  }
+  canWheel = true;
+}
+
+let canWheel = true;
+canvas.on('mouse:wheel', (ew) => {
+  onWheel(ew.e);
+});
+
 $.fn.extend({
   animateCss: function (animationName) {
     var animationEnd = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
@@ -650,26 +667,6 @@ $.fn.extend({
     return this;
   },
 });
-
-function onWheel(e) {
-  if (!canWheel) { return; }
-  canWheel = false;
-  if (e.deltaY > 0) {
-    //console.log('wheel back');
-    zoomByMouseCoords(e, false);
-    updateCanvasMove();
-    changeInfoText('줌 아웃', 'fadeIn', 'alert-primary');
-    //canvas.setZoom(canvas.getZoom() * 0.9);
-  } else {
-    //zoomByMouseCoords(e, false);
-    //console.log('wheel foward');
-    updateCanvasMove();
-    changeInfoText('줌 인', 'fadeIn', 'alert-primary');
-    zoomByMouseCoords(e, true);
-    //canvas.setZoom(canvas.getZoom() * 1.1);
-  }
-  canWheel = true;
-}
 
 const mapToggle = document.getElementById('map-toggle');
 
