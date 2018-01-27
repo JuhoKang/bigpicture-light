@@ -11,6 +11,7 @@ const canvas = new fabric.Canvas('c', {
   isDrawingMode: true,
 });
 
+//make the canvas objects unselectable
 canvas.selection = false;
 
 const CANVAS_SIZE = 4096;
@@ -77,21 +78,7 @@ function changeModeToNavigatingMode() {
   canvas.defaultCursor = canvas.moveCursor;
 }
 
-// needs validation
-// not used
-function moveToCoord() {
-  if (coordString == null) {
-    // console.log('null coordString');
-  } else {
-    // console.log(coordString);
-  }
-  const inputArr = coordString.split(',');
-  const inputX = parseInt(inputArr[0], 10);
-  const inputY = parseInt(inputArr[0], 10);
-  if (inputArr[0] != null) {
-    moveChunk(inputArr[0] * CANVAS_SIZE, inputArr[1] * CANVAS_SIZE);
-  }
-}
+
 
 var hueb = new Huebee('.color-input', {
   notation: 'hex',
@@ -169,11 +156,12 @@ function objectOutOfChunk(aCoords) {
 
 const guid = uuidv4();
 
+//generate guid
+//code from https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript/2117523#2117523
 function uuidv4() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-    var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-    return v.toString(16);
-  });
+  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
+  )
 }
 
 const onObjectAdded = (e) => {
@@ -204,7 +192,6 @@ canvas.on('object:added', onObjectAdded);
 
 function fetchChunk(x, y) {
   canvas.off('object:added');
-  //change svg to json
   $.get(`/api/paintchunk/json/coord/${x}/${y}`).then((json) => {
     canvas.clear();
     canvas.absolutePan(new fabric.Point(0, 0));
@@ -217,7 +204,7 @@ function fetchChunk(x, y) {
   currentChunks[`${x},${y}`] = true;
 }
 
-function fetchChunkSocket(x, y) {
+function fetchChunk(x, y) {
   socket.emit('getChunkData', { x, y, isMain: true });
 }
 
@@ -270,7 +257,8 @@ socket.on('otherChunkSend', (data) => {
   canvas.on('object:added', onObjectAdded);
 });
 
-function fetchChunkFromOtherSocket(x, y) {
+//fetchChunkFromOther differs with fetchChunk because the current chunk is different with other 
+function fetchChunkFromOther(x, y) {
   const fc = document.createElement('canvas');
   // 131072 = CANVAS_SIZE * 32
   if (x < 0 || y < 0 || x > 131072 || y > 131072) {
@@ -324,30 +312,14 @@ function leaveRoom(x, y) {
 }
 
 function init() {
-  fetchChunkSocket(chunk.x, chunk.y);
+  fetchChunk(chunk.x, chunk.y);
   // console.log(`startpoint : ${startPoint.x},${startPoint.y}`);
   joinRoom(chunk.x, chunk.y);
   onResize();
   $('#init-modal').modal({ backdrop: 'static', keyboard: false });
 }
 
-function moveChunk(destX, destY) {
-  // console.log(`destX,Y 1 : ${destX} , ${destY}`);
-  // console.log(`chunkX,Y 1 : ${chunk.x} , ${chunk.y}`);
-  leaveRoom(chunk.x, chunk.y);
-  chunk.x = destX * 1;
-  chunk.y = destY * 1;
-  // console.log(`destX,Y 2 : ${destX} , ${destY}`);
-  // console.log(`chunkX,Y 2 : ${chunk.x} , ${chunk.y}`);
-  joinRoom(destX, destY);
-  fetchChunk(destX, destY);
-  startPoint.x = destX * 1;
-  startPoint.y = destY * 1;
-  // console.log(`destX,Y 3 : ${destX} , ${destY}`);
-  // console.log(`chunkX,Y 3 : ${chunk.x} , ${chunk.y}`);
-  currentChunks = {};
-  onResize();
-}
+
 
 let starttime;
 
@@ -533,7 +505,7 @@ function updateCanvasMove() {
       //console.log(`checking : ${i},${j}`);
       if (currentChunks[`${i},${j}`] !== true) {
         // console.log(`adding : ${i},${j}`);
-        fetchChunkFromOtherSocket(i, j);
+        fetchChunkFromOther(i, j);
         currentChunks[`${i},${j}`] = true;
       }
     }
@@ -559,10 +531,12 @@ function zoomToCenter(isZoomIn) {
     } else {
       // console.log('no zoom any more');
       canvas.setZoom(0.04);
+      canvas.renderAll();
     }
-    canvas.renderAll();
   }
 }
+
+let canWheel = true;
 
 function onWheel(e) {
   if (!canWheel) { return; }
@@ -581,7 +555,6 @@ function onWheel(e) {
   canWheel = true;
 }
 
-let canWheel = true;
 canvas.on('mouse:wheel', (ew) => {
   onWheel(ew.e);
 });
@@ -607,4 +580,42 @@ mapToggle.onclick = () => {
 };
 
 window.addEventListener('resize', onResize);
+
 init();
+
+////////////////////////////////////////////////////////////////////////////////////
+
+//not used
+function moveChunk(destX, destY) {
+  // console.log(`destX,Y 1 : ${destX} , ${destY}`);
+  // console.log(`chunkX,Y 1 : ${chunk.x} , ${chunk.y}`);
+  leaveRoom(chunk.x, chunk.y);
+  chunk.x = destX * 1;
+  chunk.y = destY * 1;
+  // console.log(`destX,Y 2 : ${destX} , ${destY}`);
+  // console.log(`chunkX,Y 2 : ${chunk.x} , ${chunk.y}`);
+  joinRoom(destX, destY);
+  fetchChunk(destX, destY);
+  startPoint.x = destX * 1;
+  startPoint.y = destY * 1;
+  // console.log(`destX,Y 3 : ${destX} , ${destY}`);
+  // console.log(`chunkX,Y 3 : ${chunk.x} , ${chunk.y}`);
+  currentChunks = {};
+  onResize();
+}
+
+// needs validation
+// not used
+function moveToCoord() {
+  if (coordString == null) {
+    // console.log('null coordString');
+  } else {
+    // console.log(coordString);
+  }
+  const inputArr = coordString.split(',');
+  const inputX = parseInt(inputArr[0], 10);
+  const inputY = parseInt(inputArr[0], 10);
+  if (inputArr[0] != null) {
+    moveChunk(inputArr[0] * CANVAS_SIZE, inputArr[1] * CANVAS_SIZE);
+  }
+}
