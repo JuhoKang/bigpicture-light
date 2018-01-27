@@ -244,7 +244,6 @@ socket.on('otherChunkSend', (data) => {
   // console.log('otherChunkSend');
   // console.log(data);
   const fetchCanvas = new fabric.Canvas(fc, { renderOnAddRemove: false });
-  //change svg to json
   // console.log(`fetch from ${data.x},${data.y}`);
 
   canvas.off('object:added');
@@ -270,76 +269,6 @@ socket.on('otherChunkSend', (data) => {
   }
   canvas.on('object:added', onObjectAdded);
 });
-
-function fetchChunkFromOther(x, y) {
-  const fc = document.createElement('canvas');
-  // 131072 = CANVAS_SIZE * 32
-  if (x < 0 || y < 0 || x > 131072 || y > 131072) {
-    // console.log('here');
-    const patternSourceCanvas = new fabric.StaticCanvas();
-    const darkRect = new fabric.Rect({
-      width: 32,
-      height: 32,
-      fill: '#000',
-    });
-    patternSourceCanvas.add(darkRect);
-    patternSourceCanvas.renderAll();
-    const pattern = new fabric.Pattern({
-      source: function () {
-        patternSourceCanvas.setDimensions({
-          width: 64,
-          height: 64,
-        });
-        patternSourceCanvas.renderAll();
-        return patternSourceCanvas.getElement();
-      },
-      repeat: 'repeat',
-    });
-
-    const rect = new fabric.Rect({
-      width: CANVAS_SIZE,
-      height: CANVAS_SIZE,
-      left: x - startPoint.x,
-      top: y - startPoint.y,
-      fill: pattern,
-    });
-    rect.selectable = false;
-    rect.isNotMine = true;
-    canvas.add(rect);
-  } else {
-    const fetchCanvas = new fabric.Canvas(fc, { renderOnAddRemove: false });
-    //change svg to json
-    // console.log(`fetch from ${x},${y}`);
-
-    $.get(`/api/paintchunk/json/coord/${x}/${y}`, function () {
-      changeInfoText('로딩중', 'shake', 'alert-danger');
-      // console.log(`fetching from other : ${x},${y}`);
-    }).then((json) => {
-      canvas.off('object:added');
-      if (json == null) {
-        canvas.on('object:added', onObjectAdded);
-        changeInfoText('로딩 완료', 'flash', 'alert-success');
-      } else {
-        fetchCanvas.loadFromJSON(json, () => {
-          canvas.on('object:added', onObjectAdded);
-          // console.log(`fetch done : ${x},${y}`);
-          changeInfoText('로딩 완료', 'flash', 'alert-success');
-        }, (o, object) => {
-          object.left += x - startPoint.x;
-          object.top += y - startPoint.y;
-          object.isNotMine = true;
-          canvas.add(object);
-        });
-
-        fetchCanvas.forEachObject((o) => {
-          o.isNotMine = true;
-          o.selectable = false;
-        });
-      }
-
-    });
-  }
-}
 
 function fetchChunkFromOtherSocket(x, y) {
   const fc = document.createElement('canvas');
@@ -604,7 +533,6 @@ function updateCanvasMove() {
       //console.log(`checking : ${i},${j}`);
       if (currentChunks[`${i},${j}`] !== true) {
         // console.log(`adding : ${i},${j}`);
-        //fetchChunkFromOther(i, j);
         fetchChunkFromOtherSocket(i, j);
         currentChunks[`${i},${j}`] = true;
       }

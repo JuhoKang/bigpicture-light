@@ -1,15 +1,3 @@
-const ImageResizer = require('../utils/imageResizer');
-const ImageDataCell = require('../models/ImageDataCell');
-const Flag = require('../models/Flag');
-
-let flag1 = 1;
-let flag2 = 0;
-
-function getScaleCoord(scale, coord) {
-  let pow2 = Math.pow(2, scale - 1);
-  return coord - (coord % (pow2 * 100)); 
-}
-
 /*module.exports = {
   cellUpdateCheckArray: [],
 
