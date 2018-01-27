@@ -1,4 +1,4 @@
-
+/* not used
 // const fs = require('fs');
 const Canvas = require('canvas');
 const fs = require('fs');
@@ -93,4 +93,4 @@ module.exports = {
   }
 
 
-}
+}*/

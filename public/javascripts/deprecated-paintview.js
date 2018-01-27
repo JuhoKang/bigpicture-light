@@ -5,6 +5,7 @@
   Rx:true
   ImageData:true*/
 /* eslint no-undef: "error"*/
+//not used. bitmap version code here
 
 const canvas = document.getElementById('canvas');
 const context = canvas.getContext('2d');
