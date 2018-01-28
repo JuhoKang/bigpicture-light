@@ -63,6 +63,7 @@ noUiSlider.create(lineWidthSlider, {
 
 lineWidthSlider.noUiSlider.on('change', (e) => {
   canvas.freeDrawingBrush.width = parseInt(e, 10) || 1;
+  updatePreview();
 });
 //---------------- draw line width slider ----- end
 
@@ -87,6 +88,7 @@ var hueb = new Huebee('.color-input', {
 
 hueb.on('change', function (color, hue, sat, lum) {
   canvas.freeDrawingBrush.color = color;
+  updatePreview();
 });
 
 // mobile view
@@ -358,6 +360,27 @@ const onUndoFromOther = (uid) => {
 
 socket.on('undoFromOther', onUndoFromOther);
 
+var previewObj = null;
+
+function createPreview(x, y) {
+  canvas.off('object:added');
+  previewObj = new fabric.Circle({radius: (canvas.freeDrawingBrush.width/2), fill: canvas.freeDrawingBrush.color, left:100, top:100});
+  canvas.add(previewObj);
+  //canvas.renderAll();
+  canvas.on('object:added', onObjectAdded);
+};
+
+function updatePreview() {
+  previewObj.fill = canvas.freeDrawingBrush.color;
+  previewObj.radius = canvas.freeDrawingBrush.width/2;
+}
+
+function movePreview(x, y) {
+  previewObj.left = x - previewObj.radius/2;
+  previewObj.top = y - previewObj.radius/2;
+  canvas.renderAll();
+}
+
 let isPanning = false;
 let beforePoint;
 
@@ -380,9 +403,6 @@ const subscribeTouchEnd = touchEnd.subscribe((e) => {
 
 const subscribeTouchLeave = touchLeave.subscribe((e) => {
 });
-
-let storeX = 0;
-let storeY = 0;
 
 function userNavDown(e) {
   if (!canvas.isDrawingMode) {
@@ -419,11 +439,45 @@ function userNavMove(e) {
   }
 }
 
-//do something with storeXY
+function mouseHoverPreview(e) {
+  let point = canvas.getPointer(e);
+  movePreview(point.x,point.y);
+}
+
+/*canvas.on('mouse:over', (ew) => {
+  if (ew.e instanceof MouseEvent) {
+    let tempPoint = canvas.getPointer(ew.e);
+    if(preview === null) {
+      console.log('hello');
+      createPreview(tempPoint.x, tempPoint.y);
+    } else {
+      console.log('hello');
+      preview.visible = true;
+      updatePreview();
+    }    
+  } else {
+  }
+});*/
+$(".upper-canvas").mouseout(()=>{
+  canvas.remove(previewObj);
+  previewObj = null;
+});
+$(".upper-canvas").mouseover((e)=>{
+  let tempPoint = canvas.getPointer(e);
+  createPreview(tempPoint.x, tempPoint.y);
+});
+/*
+canvas.on('mouse:out', (ew) => {
+  console.log('im out');
+  preview.visible = false;
+  canvas.renderAll();
+});*/
+
 canvas.on('mouse:move', (ew) => {
   //console.log(canvas.getPointer(ew.e));
   if (ew.e instanceof MouseEvent) {
     userNavMove(ew.e);
+    mouseHoverPreview(ew.e);
   } else {
     userNavMove(ew.e.touches[0]);
   }
@@ -456,32 +510,6 @@ canvas.on('mouse:up', (ew) => {
   }
   canvas.renderAll();
 });
-
-//not used
-// function zoomByMouseCoords(e, isZoomIn) {
-//   const pointer = canvas.getPointer(e);
-//   if (isZoomIn) {
-//     if (canvas.getZoom() < 5) {
-//       canvas.absolutePan(new fabric.Point(canvas.getZoom() * pointer.x, canvas.getZoom() * pointer.y));
-//       canvas.setZoom(canvas.getZoom() * 1.1);
-//       canvas.relativePan(new fabric.Point(canvas.getWidth() / 2, canvas.getHeight() / 2));
-//     } else {
-//       // console.log('no zoom any more');
-//       canvas.setZoom(5);
-//       canvas.renderAll();
-//     }
-//   } else {
-//     if (canvas.getZoom() > 0.04) {
-//       canvas.absolutePan(new fabric.Point(canvas.getZoom() * pointer.x, canvas.getZoom() * pointer.y));
-//       canvas.setZoom(canvas.getZoom() * 0.9);
-//       canvas.relativePan(new fabric.Point(canvas.getWidth() / 2, canvas.getHeight() / 2));
-//     } else {
-//       // console.log('no zoom any more');
-//       canvas.setZoom(0.04);
-//     }
-//     canvas.renderAll();
-//   }
-// }
 
 function updateCanvasMove() {
 
@@ -619,3 +647,29 @@ function moveToCoord() {
     moveChunk(inputArr[0] * CANVAS_SIZE, inputArr[1] * CANVAS_SIZE);
   }
 }
+
+//not used
+// function zoomByMouseCoords(e, isZoomIn) {
+//   const pointer = canvas.getPointer(e);
+//   if (isZoomIn) {
+//     if (canvas.getZoom() < 5) {
+//       canvas.absolutePan(new fabric.Point(canvas.getZoom() * pointer.x, canvas.getZoom() * pointer.y));
+//       canvas.setZoom(canvas.getZoom() * 1.1);
+//       canvas.relativePan(new fabric.Point(canvas.getWidth() / 2, canvas.getHeight() / 2));
+//     } else {
+//       // console.log('no zoom any more');
+//       canvas.setZoom(5);
+//       canvas.renderAll();
+//     }
+//   } else {
+//     if (canvas.getZoom() > 0.04) {
+//       canvas.absolutePan(new fabric.Point(canvas.getZoom() * pointer.x, canvas.getZoom() * pointer.y));
+//       canvas.setZoom(canvas.getZoom() * 0.9);
+//       canvas.relativePan(new fabric.Point(canvas.getWidth() / 2, canvas.getHeight() / 2));
+//     } else {
+//       // console.log('no zoom any more');
+//       canvas.setZoom(0.04);
+//     }
+//     canvas.renderAll();
+//   }
+// }
