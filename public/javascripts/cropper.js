@@ -11,11 +11,7 @@ $("#cropper").click(function(){
     var image = $('#c')[0];
     upperCanvas.css("display", "none");
     cropperButton.css("display", "block");
-    cropper = new Cropper(image, {
-      aspectRatio: 16 / 9,
-      crop: function(e) {
-      }
-    });
+    cropper = new Cropper(image);
   }
 });
 
