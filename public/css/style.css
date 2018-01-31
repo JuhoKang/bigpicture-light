@@ -144,3 +144,6 @@ canvas {
   bottom: 0px;
   width: 100%;
 }
+.white-space-nowrap{
+	white-space: nowrap;
+}
