@@ -31,7 +31,6 @@ module.exports = function (app) {
   app.use(express.static(path.join(__dirname, '../public')));
   app.use(session({ secret: 'ertbiggibpipiccttrture', resave: false, saveUninitialized: false}));
   app.use(flash());
-  app.use('/cropperjs', express.static(path.join(__dirname, '../node_modules/cropperjs/dist/')))
 
   // routers
   app.use('/', index);

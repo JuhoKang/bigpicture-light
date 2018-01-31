@@ -10,7 +10,7 @@ block content
 				button.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark#pencilStyle(onclick="changeModeToDrawingMode()")
 					span.fa.fa-paint-brush
 					|  (D)
-				div.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark.color-picker-btn(onclick="getElementById('drawing-color').click()")
+				div.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark.color-picker-btn
 					input.color-input(value="#000000")
 				div.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark#remote-control-btn(style="padding-top:5px")
 					.btn-block#drawing-line-width
@@ -20,7 +20,7 @@ block content
 				button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark#map-toggle 지도 (M)
 				button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark#chatting-btn(value="off") 채팅창 (C)
 				//- button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark(onclick="location.href='https://github.com/JuhoKang/bigpicture-light'") GitHub
-				button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark#cropper Cropper
+				button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark#cropper 캡쳐
 				.col-lg-4.col-md-12.col-sm-12.alert.alert-secondary.btn-block#infotext(style='margin-bottom:0rem; margin-top:0rem; padding:0 0 0 5px') 환영합니다!
 			.row
 				.col-lg-12
@@ -28,6 +28,15 @@ block content
 						#map-container
 							canvas#map
 						canvas#c
+		#cropper-bottom
+			button.col-lg-2.col-md-2.col-sm-2.col-6.btn-md.btn-dark#cropper-zoomIn 확대
+			button.col-lg-2.col-md-2.col-sm-2.col-6.btn-md.btn-dark#cropper-zoomOut 축소
+			button.col-lg-2.col-md-2.col-sm-2.col-6.btn-md.btn-dark#cropper-rotateLeft 
+				span.fa.fa-rotate-left
+			button.col-lg-2.col-md-2.col-sm-2.col-6.btn-md.btn-dark#cropper-rotateRight
+				span.fa.fa-rotate-right
+			button.col-lg-2.col-md-2.col-sm-2.col-6.btn-md.btn-dark#cropper-capture 저장
+			button.col-lg-2.col-md-2.col-sm-2.col-6.btn-md.btn-dark(onclick="document.getElementById('cropper').click()") 취소
 		#sidebar
 			include chatting
 	script(type="text/javascript" src="/scripts/rx/dist/rx.all.min.js")
@@ -37,6 +46,6 @@ block content
 	script(type="text/javascript" src="/javascripts/vector-paint-view.js")
 	script(type="text/javascript" src="/javascripts/map-view.js")
 	script(type='text/javascript' src="/javascripts/chatting.js")
-	script(type='text/javascript' src="/javascripts/shotcuts.js")
-	script(type='text/javascript' src="/cropperjs/cropper.min.js")
+	script(type='text/javascript' src="/javascripts/shortcuts.js")
+	script(type='text/javascript' src="/cropper/cropper.min.js")
 	script(type='text/javascript' src="/javascripts/cropper.js")
