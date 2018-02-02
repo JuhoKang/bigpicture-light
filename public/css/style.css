@@ -137,3 +137,13 @@ canvas {
   padding: 0;
   border: 0;
 }
+
+#cropper-bottom{
+  position: absolute;
+  display: none;
+  bottom: 0px;
+  width: 100%;
+}
+.white-space-nowrap{
+	white-space: nowrap;
+}
