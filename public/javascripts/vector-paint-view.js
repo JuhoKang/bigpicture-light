@@ -376,8 +376,8 @@ function updatePreview() {
 }
 
 function movePreview(x, y) {
-  previewObj.left = x - previewObj.radius/2;
-  previewObj.top = y - previewObj.radius/2;
+  previewObj.left = x - previewObj.radius;
+  previewObj.top = y - previewObj.radius;
   canvas.renderAll();
 }
 
@@ -459,12 +459,16 @@ function mouseHoverPreview(e) {
   }
 });*/
 $(".upper-canvas").mouseout(()=>{
-  canvas.remove(previewObj);
-  previewObj = null;
+  if(previewObj != null) {
+    canvas.remove(previewObj);
+    previewObj = null;
+  }
 });
 $(".upper-canvas").mouseover((e)=>{
-  let tempPoint = canvas.getPointer(e);
-  createPreview(tempPoint.x, tempPoint.y);
+  if(canvas.isDrawingMode == true) {
+    let tempPoint = canvas.getPointer(e);
+    createPreview(tempPoint.x, tempPoint.y);
+  }
 });
 /*
 canvas.on('mouse:out', (ew) => {
