@@ -427,15 +427,13 @@ canvas.on('mouse:down', (ew) => {
 });
 
 function userNavMove(e) {
-  if (!canvas.isDrawingMode) {
-    if (isPanning === true) {
-      const x = e.screenX;
-      const y = e.screenY;
-      canvas.relativePan(new fabric.Point(x - beforePoint.x, y - beforePoint.y));
-      updateCanvasMove();
-      beforePoint.x = x;
-      beforePoint.y = y;
-    }
+  if (isPanning === true) {
+    const x = e.screenX;
+    const y = e.screenY;
+    canvas.relativePan(new fabric.Point(x - beforePoint.x, y - beforePoint.y));
+    updateCanvasMove();
+    beforePoint.x = x;
+    beforePoint.y = y;
   }
 }
 
@@ -465,7 +463,7 @@ $(".upper-canvas").mouseout(()=>{
   }
 });
 $(".upper-canvas").mouseover((e)=>{
-  if(canvas.isDrawingMode == true) {
+  if(canvas.isDrawingMode) {
     let tempPoint = canvas.getPointer(e);
     createPreview(tempPoint.x, tempPoint.y);
   }
@@ -480,10 +478,15 @@ canvas.on('mouse:out', (ew) => {
 canvas.on('mouse:move', (ew) => {
   //console.log(canvas.getPointer(ew.e));
   if (ew.e instanceof MouseEvent) {
-    userNavMove(ew.e);
-    mouseHoverPreview(ew.e);
+    if(canvas.isDrawingMode) {
+      mouseHoverPreview(ew.e);
+    } else {
+      userNavMove(ew.e);
+    }
   } else {
-    userNavMove(ew.e.touches[0]);
+    if (!canvas.isDrawingMode) {
+      userNavMove(ew.e.touches[0]);
+    }
   }
 });
 
@@ -501,7 +504,7 @@ function userNavUp(e) {
     chunk.x = nextChunk.x * 1;
     chunk.y = nextChunk.y * 1;
     joinRoom(chunk.x, chunk.y);
-    onResize();
+    //onResize();
     // console.log('different place');
   }
 }
@@ -529,7 +532,7 @@ function updateCanvasMove() {
     chunk.x = nextChunk.x * 1;
     chunk.y = nextChunk.y * 1;
     joinRoom(chunk.x, chunk.y);
-    onResize();
+    //onResize();
     // console.log('different place');
   }
   for (let i = getLTC(vptc.tl.x) + startPoint.x; i <= getLTC(vptc.br.x) + startPoint.x; i += CANVAS_SIZE) {
@@ -633,7 +636,7 @@ function moveChunk(destX, destY) {
   // console.log(`destX,Y 3 : ${destX} , ${destY}`);
   // console.log(`chunkX,Y 3 : ${chunk.x} , ${chunk.y}`);
   currentChunks = {};
-  onResize();
+  //onResize();
 }
 
 // needs validation
