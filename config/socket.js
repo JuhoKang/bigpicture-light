@@ -146,6 +146,14 @@ module.exports = function (server) {
       }
     });
 
+    socket.on('getPng', (data) => {
+      if (chunks[`${data.xAxis},${data.yAxis}`] != null) {
+        const target = chunks[`${data.xAxis},${data.yAxis}`];
+        const png = target.toDataURL({ width: 4096, height: 4096 });
+        socket.emit('pngHit', { x: data.xAxis, y: data.yAxis, pngData: png });
+      }
+    });
+
     socket.on('leaveRoom', (data) => {
       socket.leave(`chunk_room:${data.xAxis},${data.yAxis}`);
     });

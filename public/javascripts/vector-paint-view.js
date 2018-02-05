@@ -540,7 +540,11 @@ function updateCanvasMove() {
       //console.log(`checking : ${i},${j}`);
       if (currentChunks[`${i},${j}`] !== true) {
         // console.log(`adding : ${i},${j}`);
-        fetchChunkFromOther(i, j);
+        //if(canvas.getZoom() > 2) {
+          //fetchPng(i, j);
+        //} else {
+          fetchChunkFromOther(i, j);
+        //}
         currentChunks[`${i},${j}`] = true;
       }
     }
@@ -607,14 +611,50 @@ $.fn.extend({
 const mapToggle = document.getElementById('map-toggle');
 
 mapToggle.onclick = () => {
-  if ($('#map-container').is(':visible')) {
-    $('#map-container').hide('slow');
+  if ($("#map-container").is(":visible")) {
+    $("#map-container").hide("slow");
   } else {
-    $('#map-container').show('slow');
+    $("#map-container").show("slow");
   }
 };
 
-window.addEventListener('resize', onResize);
+window.addEventListener("resize", onResize);
+
+pngChunks = {};
+
+function fetchPng(x, y) {
+  socket.emit("getPng", { xAxis: x, yAxis: y });
+}
+
+socket.on("pngHit", (data) => {
+  console.log("pngHit");
+  pngChunks[`${data.x},${data.y}`] = data.pngData;
+  const png = pngChunks[`${data.x},${data.y}`];
+  canvas.off("object:added");
+  if (png == null) {
+    canvas.on('object:added', onObjectAdded);
+    changeInfoText('로딩 완료', 'flash', 'alert-success');
+  } else {
+    fabric.Image.fromURL(png,() => {
+      canvas.on('object:added', onObjectAdded);
+      // console.log(`fetch done : ${data.x},${data.y}`);
+      changeInfoText('로딩 완료', 'flash', 'alert-success');
+    }, (oImg) => {
+      oImg.left += data.x - startPoint.x;
+      oImg.top += data.y - startPoint.y;
+      oImg.isNotMine = true;
+      oImg.selectable = false;
+      canvas.add(oImg);
+    });
+  }
+  canvas.on('object:added', onObjectAdded);
+});
+
+function fillCanvasWithImage(x, y, pngData) {
+  fabric.Image.fromURL(pngData, (oImg) => {
+    canvas.add(oImg);
+  });
+}
 
 init();
 
