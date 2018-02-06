@@ -539,11 +539,11 @@ function updateCanvasMove() {
     for (let j = getLTC(vptc.tl.y) + startPoint.y; j <= getLTC(vptc.br.y) + startPoint.y; j += CANVAS_SIZE) {
       //console.log(`checking : ${i},${j}`);
       if (currentChunks[`${i},${j}`] !== true) {
-        // console.log(`adding : ${i},${j}`);
+        console.log(`adding : ${i},${j}`);
         //if(canvas.getZoom() > 2) {
-          //fetchPng(i, j);
+          fetchPng(i, j);
         //} else {
-          fetchChunkFromOther(i, j);
+        //  fetchChunkFromOther(i, j);
         //}
         currentChunks[`${i},${j}`] = true;
       }
@@ -632,22 +632,22 @@ socket.on("pngHit", (data) => {
   const png = pngChunks[`${data.x},${data.y}`];
   canvas.off("object:added");
   if (png == null) {
-    canvas.on('object:added', onObjectAdded);
-    changeInfoText('로딩 완료', 'flash', 'alert-success');
+    //console.log("png null");
+    canvas.on("object:added", onObjectAdded);
+    changeInfoText("로딩 완료", "flash", "alert-success");
   } else {
-    fabric.Image.fromURL(png,() => {
-      canvas.on('object:added', onObjectAdded);
-      // console.log(`fetch done : ${data.x},${data.y}`);
-      changeInfoText('로딩 완료', 'flash', 'alert-success');
-    }, (oImg) => {
+    console.log("png not null");
+    fabric.Image.fromURL(png, (oImg) => {
+      console.log("adding");
+      console.log(oImg);
       oImg.left += data.x - startPoint.x;
       oImg.top += data.y - startPoint.y;
       oImg.isNotMine = true;
       oImg.selectable = false;
       canvas.add(oImg);
+      canvas.on("object:added", onObjectAdded);
     });
   }
-  canvas.on('object:added', onObjectAdded);
 });
 
 function fillCanvasWithImage(x, y, pngData) {

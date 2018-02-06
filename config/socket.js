@@ -26,161 +26,207 @@ module.exports = function (server) {
     });
   }
 
-  let io = require('socket.io')(server);
+  let io = require("socket.io")(server);
 
-  io.on('connection', function (socket) {
-
-    socket.on('getChunkData', (data) => {
-      //no chunk hit on memory
-      if (chunks[`${data.x},${data.y}`] == null) {
-        chunks[`${data.x},${data.y}`] = fabric.createCanvasForNode(CANVAS_SIZE, CANVAS_SIZE);
+  function initChunk(x, y) {
+    return new Promise((resolve, reject) => {
+      if (chunks[`${x},${y}`] == null) {
         //get data from database
         PaintChunk.findOne({
-          x_axis: data.x,
-          y_axis: data.y,
+          x_axis: x,
+          y_axis: y,
         }).exec().then((chunk) => {
           // if nothing exists a cell with null data returns.
           if (chunk != null) {
-            chunks[`${data.x},${data.y}`].loadFromJSON(chunk.data);
-            if (data.isMain) {
-              socket.emit('mainChunkSend', { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
-            } else {
-              socket.emit('otherChunkSend', { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
-            }
+            chunks[`${x},${y}`] = fabric.createCanvasForNode(CANVAS_SIZE, CANVAS_SIZE);
+            chunks[`${x},${y}`].loadFromJSON(chunk.data);
+            resolve(`${x},${y}`);
           } else {
+            resolve("chunk is null");
             //no chunk data from database
             //console.log('chunk is null');
           }
         }, (err) => {
+          console.log(err);
+          reject(err);
           // need better error handling
           debug(err);
         });
 
+
         //initialize chunkHealth when initilizing chunk
-        chunkHealth[`${data.x},${data.y}`] = MAX_CHUNK_HEALTH;
+        chunkHealth[`${x},${y}`] = MAX_CHUNK_HEALTH;
         const interval = setInterval(() => {
-          updateChunk(data.x, data.y);
+          updateChunk(x, y);
         }, CHUNK_UPDATE_MILLSEC_TIME);
-        chunkInterval[`${data.x},${data.y}`] = interval;
+        chunkInterval[`${x},${y}`] = interval;
       } else {
-        if (data.isMain) {
-          socket.emit('mainChunkSend', { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
-        } else {
-          socket.emit('otherChunkSend', { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
-        }
+        resolve(`${x},${y}`);
+        //chunk is already intialized
       }
     });
+  }
 
-    socket.on('joinRoom', (coord) => {
-      socket.join(`chunk_room:${coord.x},${coord.y}`);
-    });
+io.on("connection", function (socket) {
 
-    socket.on('drawToRoom', (data) => {
-      socket.broadcast.to(`paint_room:${data.coord}`).emit('drawing', data.drawData);
-    });
-
-    socket.on('drawToChunk', (data) => {
-      //no chunk hit on memory
-      if (chunks[`${data.xAxis},${data.yAxis}`] == null) {
-        //console.log(`${data.xAxis},${data.yAxis} : is null`);
-        MAX_CHUNK_HEALTH
-        chunks[`${data.xAxis},${data.yAxis}`] = fabric.createCanvasForNode(CANVAS_SIZE, CANVAS_SIZE);
-
-        PaintChunk.findOne({
-          x_axis: data.xAxis,
-          y_axis: data.yAxis,
-        }).exec().then((chunk) => {
-          // if nothing exists a cell with null data returns.
-          if (chunk != null) {
-            chunks[`${data.xAxis},${data.yAxis}`].loadFromJSON(chunk.data);
-            fabric.util.enlivenObjects([data.data], (objects) => {
-              objects.forEach((obj) => {
-                obj.left = data.serverLeft;
-                obj.top = data.serverTop;
-                obj.owner = data.uid;
-                chunks[`${data.xAxis},${data.yAxis}`].add(obj);
-              });
-            });
+  socket.on("getChunkData", (data) => {
+    //no chunk hit on memory
+    if (chunks[`${data.x},${data.y}`] == null) {
+      chunks[`${data.x},${data.y}`] = fabric.createCanvasForNode(CANVAS_SIZE, CANVAS_SIZE);
+      //get data from database
+      PaintChunk.findOne({
+        x_axis: data.x,
+        y_axis: data.y,
+      }).exec().then((chunk) => {
+        // if nothing exists a cell with null data returns.
+        if (chunk != null) {
+          chunks[`${data.x},${data.y}`].loadFromJSON(chunk.data);
+          if (data.isMain) {
+            socket.emit('mainChunkSend', { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
+          } else {
+            socket.emit('otherChunkSend', { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
           }
-        }, (err) => {
-          // need better error handling
-          debug(err);
-        });
-
-        //initialize chunkHealth when initilizing chunk
-        chunkHealth[`${data.x},${data.y}`] = MAX_CHUNK_HEALTH;
-        const interval = setInterval(() => {
-          updateChunk(data.xAxis, data.yAxis);
-        }, CHUNK_UPDATE_MILLSEC_TIME);
-        chunkInterval[`${data.x},${data.y}`] = interval;
-
-      } else {
-        //reInitialize chunkHealth when user draws.
-        chunkHealth[`${data.xAxis},${data.yAxis}`] = MAX_CHUNK_HEALTH;
-
-        fabric.util.enlivenObjects([data.data], (objects) => {
-          objects.forEach((obj) => {
-            obj.left = data.serverLeft;
-            obj.top = data.serverTop;
-            obj.owner = data.uid;
-            chunks[`${data.xAxis},${data.yAxis}`].add(obj);
-          });
-        });
-      }
-
-      socket.broadcast.to(`chunk_room:${data.xAxis},${data.yAxis}`).emit('objectFromOther', {
-        data: data.data,
-        uid: data.uid,
+        } else {
+          //no chunk data from database
+          //console.log('chunk is null');
+        }
+      }, (err) => {
+        // need better error handling
+        debug(err);
       });
 
-    });
-
-    socket.on('removeObject', (data) => {
-      let chunkObjects = chunks[`${data.xAxis},${data.yAxis}`].getObjects();
-      for (let i = chunkObjects.length - 1; i > -1; i--) {
-        if (chunkObjects[i].owner === data.uid) {
-          chunks[`${data.xAxis},${data.yAxis}`].remove(chunkObjects[i]);
-          socket.broadcast.to(`chunk_room:${data.xAxis},${data.yAxis}`).emit('undoFromOther', data.uid);
-          break;
-        }
+      //initialize chunkHealth when initilizing chunk
+      chunkHealth[`${data.x},${data.y}`] = MAX_CHUNK_HEALTH;
+      const interval = setInterval(() => {
+        updateChunk(data.x, data.y);
+      }, CHUNK_UPDATE_MILLSEC_TIME);
+      chunkInterval[`${data.x},${data.y}`] = interval;
+    } else {
+      if (data.isMain) {
+        socket.emit('mainChunkSend', { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
+      } else {
+        socket.emit('otherChunkSend', { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
       }
+    }
+  });
+
+  socket.on('joinRoom', (coord) => {
+    socket.join(`chunk_room:${coord.x},${coord.y}`);
+  });
+
+  socket.on('drawToRoom', (data) => {
+    socket.broadcast.to(`paint_room:${data.coord}`).emit('drawing', data.drawData);
+  });
+
+  socket.on('drawToChunk', (data) => {
+    //no chunk hit on memory
+    if (chunks[`${data.xAxis},${data.yAxis}`] == null) {
+      //console.log(`${data.xAxis},${data.yAxis} : is null`);
+      MAX_CHUNK_HEALTH
+      chunks[`${data.xAxis},${data.yAxis}`] = fabric.createCanvasForNode(CANVAS_SIZE, CANVAS_SIZE);
+
+      PaintChunk.findOne({
+        x_axis: data.xAxis,
+        y_axis: data.yAxis,
+      }).exec().then((chunk) => {
+        // if nothing exists a cell with null data returns.
+        if (chunk != null) {
+          chunks[`${data.xAxis},${data.yAxis}`].loadFromJSON(chunk.data);
+          fabric.util.enlivenObjects([data.data], (objects) => {
+            objects.forEach((obj) => {
+              obj.left = data.serverLeft;
+              obj.top = data.serverTop;
+              obj.owner = data.uid;
+              chunks[`${data.xAxis},${data.yAxis}`].add(obj);
+            });
+          });
+        }
+      }, (err) => {
+        // need better error handling
+        debug(err);
+      });
+
+      //initialize chunkHealth when initilizing chunk
+      chunkHealth[`${data.x},${data.y}`] = MAX_CHUNK_HEALTH;
+      const interval = setInterval(() => {
+        updateChunk(data.xAxis, data.yAxis);
+      }, CHUNK_UPDATE_MILLSEC_TIME);
+      chunkInterval[`${data.x},${data.y}`] = interval;
+
+    } else {
+      //reInitialize chunkHealth when user draws.
+      chunkHealth[`${data.xAxis},${data.yAxis}`] = MAX_CHUNK_HEALTH;
+
+      fabric.util.enlivenObjects([data.data], (objects) => {
+        objects.forEach((obj) => {
+          obj.left = data.serverLeft;
+          obj.top = data.serverTop;
+          obj.owner = data.uid;
+          chunks[`${data.xAxis},${data.yAxis}`].add(obj);
+        });
+      });
+    }
+
+    socket.broadcast.to(`chunk_room:${data.xAxis},${data.yAxis}`).emit('objectFromOther', {
+      data: data.data,
+      uid: data.uid,
     });
 
-    socket.on('getPng', (data) => {
+  });
+
+  socket.on('removeObject', (data) => {
+    let chunkObjects = chunks[`${data.xAxis},${data.yAxis}`].getObjects();
+    for (let i = chunkObjects.length - 1; i > -1; i--) {
+      if (chunkObjects[i].owner === data.uid) {
+        chunks[`${data.xAxis},${data.yAxis}`].remove(chunkObjects[i]);
+        socket.broadcast.to(`chunk_room:${data.xAxis},${data.yAxis}`).emit('undoFromOther', data.uid);
+        break;
+      }
+    }
+  });
+
+  socket.on('getPng', (data) => {
+    initChunk(data.xAxis, data.yAxis).then(() => {
+      console.log('hello');
       if (chunks[`${data.xAxis},${data.yAxis}`] != null) {
         const target = chunks[`${data.xAxis},${data.yAxis}`];
         const png = target.toDataURL({ width: 4096, height: 4096 });
+        console.log('pngHit');
         socket.emit('pngHit', { x: data.xAxis, y: data.yAxis, pngData: png });
       }
+    }).catch(() => {
+      console.log('not hello');
     });
 
-    socket.on('leaveRoom', (data) => {
-      socket.leave(`chunk_room:${data.xAxis},${data.yAxis}`);
-    });
+  });
 
-    socket.on('fromclient', function (data) {
-      let msg = {
-        from: {
-          name: data.username,
-        },
-        msg: data.msg
-      };
-      const theRooms = Object.keys(socket.rooms);
-      const destUsers = [];
-      for (let i = 0; i < theRooms.length; i += 1) {
-        const dirtyUsers = io.sockets.adapter.rooms[theRooms[i]].sockets;
-        const dirtyUsersKeys = Object.keys(dirtyUsers);
-        for (let j = 0; j < dirtyUsersKeys.length; j += 1) {
-          if (destUsers[dirtyUsersKeys[j]] !== true) {
-            destUsers[dirtyUsersKeys[j]] = true;
-          }
+  socket.on('leaveRoom', (data) => {
+    socket.leave(`chunk_room:${data.xAxis},${data.yAxis}`);
+  });
+
+  socket.on('fromclient', function (data) {
+    let msg = {
+      from: {
+        name: data.username,
+      },
+      msg: data.msg
+    };
+    const theRooms = Object.keys(socket.rooms);
+    const destUsers = [];
+    for (let i = 0; i < theRooms.length; i += 1) {
+      const dirtyUsers = io.sockets.adapter.rooms[theRooms[i]].sockets;
+      const dirtyUsersKeys = Object.keys(dirtyUsers);
+      for (let j = 0; j < dirtyUsersKeys.length; j += 1) {
+        if (destUsers[dirtyUsersKeys[j]] !== true) {
+          destUsers[dirtyUsersKeys[j]] = true;
         }
       }
+    }
 
-      const destUsersKeys = Object.keys(destUsers);
-      for (let i = 0; i < destUsersKeys.length; i += 1) {
-        socket.broadcast.to(destUsersKeys[i]).emit('toclient', msg);
-      }
-    });
+    const destUsersKeys = Object.keys(destUsers);
+    for (let i = 0; i < destUsersKeys.length; i += 1) {
+      socket.broadcast.to(destUsersKeys[i]).emit('toclient', msg);
+    }
   });
+});
 };
