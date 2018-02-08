@@ -16,8 +16,8 @@ $('#chatting-btn').click(function(){
       w = 300;
     }
     $('#sidebar').animate({'width':w},700);
-	$('.chatting-count').text('0');
-	$('.chatting-count').addClass('d-none');
+	  $('.chatting-count').text('0');
+	  $('.chatting-count').addClass('d-none');
   }else{
     $(this).val("off");
     $('#sidebar').animate({'width':0},700);
@@ -84,9 +84,9 @@ function showMessage(usermsg) {
 function chattingCounter(e) {
   var ct = parseInt(e.text());
   if(ct>99){
-	e.text('99+');
+	  e.text('99+');
   }else{
-	e.text(ct+1);  
+	  e.text(ct+1);  
   }
   e.removeClass('d-none');
 }
