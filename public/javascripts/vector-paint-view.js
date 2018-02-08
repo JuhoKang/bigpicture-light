@@ -65,7 +65,9 @@ noUiSlider.create(lineWidthSlider, {
 
 lineWidthSlider.noUiSlider.on('change', (e) => {
   canvas.freeDrawingBrush.width = parseInt(e, 10) || 1;
-  updatePreview();
+  if(previewObj != null) {
+    updatePreview();
+  }
 });
 //---------------- draw line width slider ----- end
 
@@ -90,7 +92,9 @@ var hueb = new Huebee('.color-input', {
 
 hueb.on('change', function (color, hue, sat, lum) {
   canvas.freeDrawingBrush.color = color;
-  updatePreview();
+  if(previewObj != null) {
+    updatePreview();
+  }
 });
 
 // mobile view
