@@ -1,21 +1,21 @@
-const PaintChunk = require('../models/PaintChunk');
-const debug = require('debug')('paintchunkcontroller');
-const fs = require('fs');
+const PaintChunk = require("../models/PaintChunk");
+const debug = require("debug")("paintchunkcontroller");
+const fs = require("fs");
 
 exports.paintchunk_create_post = function (req, res) {
-  req.checkBody('x_axis', 'x_axis required').notEmpty();
-  req.checkBody('y_axis', 'y_axis required').notEmpty();
-  req.checkBody('svgdata', 'svgdata required').notEmpty();
+  req.checkBody("x_axis", "x_axis required").notEmpty();
+  req.checkBody("y_axis", "y_axis required").notEmpty();
+  req.checkBody("svgdata", "svgdata required").notEmpty();
 
-  req.sanitize('x_axis').escape();
-  req.sanitize('x_axis').trim();
-  req.sanitize('y_axis').escape();
-  req.sanitize('y_axis').trim();
+  req.sanitize("x_axis").escape();
+  req.sanitize("x_axis").trim();
+  req.sanitize("y_axis").escape();
+  req.sanitize("y_axis").trim();
 
   const errors = req.validationErrors();
 
   if (errors) {
-    debug('errors in validation : ');
+    debug("errors in validation : ");
   } else {
     const xAxis = req.body.x_axis;
     const yAxis = req.body.y_axis;
@@ -35,7 +35,7 @@ exports.paintchunk_create_post = function (req, res) {
 
     freshPaintChunk.save(function (err) {
       if (err) { return next(err); }
-      debug('fresh paint chunk saved!');
+      debug("fresh paint chunk saved!");
     }).then((saved) => {
       res.json(saved);
     }, (err) => {
@@ -73,13 +73,13 @@ exports.paintchunk_save = (xAxis, yAxis, data) => {
         freshPaintChunk.save(function (err) {
           if (err) {
             debug(err);
-            reject('findOne err1');
+            reject("findOne err1");
             return null;
           }
-          debug('fresh data cell saved!');
+          debug("fresh data cell saved!");
         }).then(saved => saved, (err) => {
-          reject('findOne err2');
-          debug(`save err :'${err}`);
+          reject("findOne err2");
+          debug(`save err :"${err}`);
           return null;
         });
       } else {
@@ -88,7 +88,7 @@ exports.paintchunk_save = (xAxis, yAxis, data) => {
       }
     }, (err) => {
       debug(`findOne err : ${err}`);
-      reject('findOne err3');
+      reject("findOne err3");
       return null;
     });
   });
@@ -103,7 +103,7 @@ exports.paintchunk_json_find_by_coordinates = (req, res) => {
     if (chunk == null) {
       res.json(null);
     } else {
-      res.contentType = 'text/plain';
+      res.contentType = "text/plain";
       res.send(chunk.data);
     }
   }, (err) => {

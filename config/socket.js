@@ -1,7 +1,7 @@
-const PaintChunk = require('../models/PaintChunk');
-const debug = require('debug')('socket');
-const paintChunkController = require('../controllers/paintChunkController');
-const fabric = require('fabric').fabric;
+const PaintChunk = require("../models/PaintChunk");
+const debug = require("debug")("socket");
+const paintChunkController = require("../controllers/paintChunkController");
+const fabric = require("fabric").fabric;
 
 const MAX_CHUNK_HEALTH = 3;
 const CHUNK_UPDATE_MILLSEC_TIME = 10000;
@@ -26,11 +26,11 @@ module.exports = function (server) {
     });
   }
 
-  let io = require('socket.io')(server);
+  let io = require("socket.io")(server);
 
-  io.on('connection', function (socket) {
+  io.on("connection", function (socket) {
 
-    socket.on('getChunkData', (data) => {
+    socket.on("getChunkData", (data) => {
       //no chunk hit on memory
       if (chunks[`${data.x},${data.y}`] == null) {
         chunks[`${data.x},${data.y}`] = fabric.createCanvasForNode(CANVAS_SIZE, CANVAS_SIZE);
@@ -43,13 +43,13 @@ module.exports = function (server) {
           if (chunk != null) {
             chunks[`${data.x},${data.y}`].loadFromJSON(chunk.data);
             if (data.isMain) {
-              socket.emit('mainChunkSend', { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
+              socket.emit("mainChunkSend", { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
             } else {
-              socket.emit('otherChunkSend', { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
+              socket.emit("otherChunkSend", { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
             }
           } else {
             //no chunk data from database
-            //console.log('chunk is null');
+            //console.log("chunk is null");
           }
         }, (err) => {
           // need better error handling
@@ -64,22 +64,22 @@ module.exports = function (server) {
         chunkInterval[`${data.x},${data.y}`] = interval;
       } else {
         if (data.isMain) {
-          socket.emit('mainChunkSend', { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
+          socket.emit("mainChunkSend", { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
         } else {
-          socket.emit('otherChunkSend', { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
+          socket.emit("otherChunkSend", { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
         }
       }
     });
 
-    socket.on('joinRoom', (coord) => {
+    socket.on("joinRoom", (coord) => {
       socket.join(`chunk_room:${coord.x},${coord.y}`);
     });
 
-    socket.on('drawToRoom', (data) => {
-      socket.broadcast.to(`paint_room:${data.coord}`).emit('drawing', data.drawData);
+    socket.on("drawToRoom", (data) => {
+      socket.broadcast.to(`paint_room:${data.coord}`).emit("drawing", data.drawData);
     });
 
-    socket.on('drawToChunk', (data) => {
+    socket.on("drawToChunk", (data) => {
       //no chunk hit on memory
       if (chunks[`${data.xAxis},${data.yAxis}`] == null) {
         //console.log(`${data.xAxis},${data.yAxis} : is null`);
@@ -128,29 +128,29 @@ module.exports = function (server) {
         });
       }
 
-      socket.broadcast.to(`chunk_room:${data.xAxis},${data.yAxis}`).emit('objectFromOther', {
+      socket.broadcast.to(`chunk_room:${data.xAxis},${data.yAxis}`).emit("objectFromOther", {
         data: data.data,
         uid: data.uid,
       });
 
     });
 
-    socket.on('removeObject', (data) => {
+    socket.on("removeObject", (data) => {
       let chunkObjects = chunks[`${data.xAxis},${data.yAxis}`].getObjects();
       for (let i = chunkObjects.length - 1; i > -1; i--) {
         if (chunkObjects[i].owner === data.uid) {
           chunks[`${data.xAxis},${data.yAxis}`].remove(chunkObjects[i]);
-          socket.broadcast.to(`chunk_room:${data.xAxis},${data.yAxis}`).emit('undoFromOther', data.uid);
+          socket.broadcast.to(`chunk_room:${data.xAxis},${data.yAxis}`).emit("undoFromOther", data.uid);
           break;
         }
       }
     });
 
-    socket.on('leaveRoom', (data) => {
+    socket.on("leaveRoom", (data) => {
       socket.leave(`chunk_room:${data.xAxis},${data.yAxis}`);
     });
 
-    socket.on('fromclient', function (data) {
+    socket.on("fromclient", function (data) {
       let msg = {
         from: {
           name: data.username,
@@ -171,7 +171,7 @@ module.exports = function (server) {
 
       const destUsersKeys = Object.keys(destUsers);
       for (let i = 0; i < destUsersKeys.length; i += 1) {
-        socket.broadcast.to(destUsersKeys[i]).emit('toclient', msg);
+        socket.broadcast.to(destUsersKeys[i]).emit("toclient", msg);
       }
     });
   });

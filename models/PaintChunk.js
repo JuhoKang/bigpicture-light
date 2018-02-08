@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const Schema = mongoose.Schema;
 
@@ -11,10 +11,10 @@ const PaintChunkSchema = new Schema({
 }, { timestamps: true });
 
 PaintChunkSchema
-.virtual('url')
+.virtual("url")
 .get(function () {
   return `/api/paintchunk/${this._id}`;
 // timestamps add createdAt and updatedAt
 });
 
-module.exports = mongoose.model('PaintChunk', PaintChunkSchema);
+module.exports = mongoose.model("PaintChunk", PaintChunkSchema);
