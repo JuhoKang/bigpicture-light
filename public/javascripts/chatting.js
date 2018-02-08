@@ -15,11 +15,15 @@ $("#chatting-btn").click(function(){
     else{
       w = 300;
     }
-    $("#sidebar").animate({"width":w},700);
+    $("#sidebar").animate({"width":w},{duration:700,
+      complete: function(){
+        $(".chatting").removeClass("white-space-nowrap")
+      }});
     $(".chatting-count").text("0");
     $(".chatting-count").addClass("d-none");
   }else{
     $(this).val("off");
+    $(".chatting").addClass("white-space-nowrap");
     $("#sidebar").animate({"width":0},700);
   }
 });
@@ -39,6 +43,11 @@ $("#play").click(function() {
 // send Message
 $("#msgbox").keyup((event) => {
   if (event.keyCode == 13 && $("#msgbox").val() !== "") {
+    if($("#msgbox").val().length > 100){
+      alert("100글자 이내로 작성해 주세요.")
+      $("#msgbox").val("");
+      return;
+    }
     sendMessage(name, $("#msgbox"));
     showMessage($("#msgbox"));
     $("#msgbox").val("");
@@ -46,6 +55,11 @@ $("#msgbox").keyup((event) => {
 });
 $("#msgenter").click((event) => {
   if($("#msgbox").val() !== ""){
+    if($("#msgbox").val().length > 100){
+      alert("100글자 이내로 작성해 주세요.")
+      $("#msgbox").val("");
+      return;
+    }
     sendMessage(name, $("#msgbox"));
     showMessage($("#msgbox"));
     $("#msgbox").val("");
@@ -83,10 +97,13 @@ function showMessage(usermsg) {
 
 function chattingCounter(e) {
   var ct = parseInt(e.text());
-  if(ct>99){
-    e.text("99+");
-  }else{
-    e.text(ct+1);  
+  var chattingContainer = $("#chatting-btn");
+  if(chattingContainer.val() == "off"){
+    if(ct>99){
+      e.text("99+");
+    }else{
+      e.text(ct+1);  
+    }
+    e.removeClass("d-none");
   }
-  e.removeClass("d-none");
 }

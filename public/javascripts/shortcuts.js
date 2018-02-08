@@ -14,14 +14,14 @@ $(document).keyup(function(event) {
 		$("#drawing-shadow-color").click();
 	}
 	
-	//리모콘 R
+	//chat room R
   if (event.keyCode === 82){
-    $("#remote-control-btn").click();
+    $("#chatting-btn").click();
 	}
 	
-	//채팅창 C
+	//cropper C
 	if (event.keyCode === 67){
-    $("#chatting-btn").click();
+    $("#cropper").click();
 	}
 
 	//지도 M

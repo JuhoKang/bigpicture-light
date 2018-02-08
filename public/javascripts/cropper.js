@@ -2,15 +2,21 @@ var cropper = null;
 $("#cropper").click(function(){
   var upperCanvas = $(".upper-canvas");
   var cropperButton = $("#cropper-bottom");
+  var zoomInButton = $(".zoomin-btn").show();
+  var zoomOutButton = $(".zoomout-btn").show();
   if(cropper){
     upperCanvas.css("display", "block");
     cropperButton.css("display", "none");
+    zoomInButton.show();
+    zoomOutButton.show();
     cropper.destroy();
     cropper = null;
   }else{
     var image = $("#c")[0];
     upperCanvas.css("display", "none");
     cropperButton.css("display", "block");
+    zoomInButton.hide();
+    zoomOutButton.hide();
     cropper = new Cropper(image);
   }
 });
