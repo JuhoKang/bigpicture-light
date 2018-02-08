@@ -30,7 +30,6 @@
 }
 .chatting-header>h4 {
 	margin-top: 5px;
-	padding: 3px;
 	font-size: 20px;
 }
 .chatting-option-btn{
@@ -42,8 +41,8 @@
 .chattingbox{
 	display:inline-block;
 	padding: 5px 15px 5px 10px;
-	background-color: #fff;
-	/* border: 2px solid; */
+	background-color: #222;
+	color: #fff;
 	border-radius: 5px;
 }
 .chattinglist{
