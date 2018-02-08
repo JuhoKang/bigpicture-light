@@ -147,3 +147,8 @@ canvas {
 .white-space-nowrap{
 	white-space: nowrap;
 }
+.zoom-button-container{
+	position: absolute;
+	bottom: 15px;
+	left: 15px;
+}
