@@ -83,10 +83,13 @@ function showMessage(usermsg) {
 
 function chattingCounter(e) {
   var ct = parseInt(e.text());
-  if(ct>99){
-    e.text("99+");
-  }else{
-    e.text(ct+1);  
+  var chattingContainer = $("#chatting-btn");
+  if(chattingContainer.val() == "off"){
+    if(ct>99){
+      e.text("99+");
+    }else{
+      e.text(ct+1);  
+    }
+    e.removeClass("d-none");
   }
-  e.removeClass("d-none");
 }
