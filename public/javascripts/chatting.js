@@ -16,6 +16,8 @@ $('#chatting-btn').click(function(){
       w = 300;
     }
     $('#sidebar').animate({'width':w},700);
+	$('.chatting-count').text('0');
+	$('.chatting-count').addClass('d-none');
   }else{
     $(this).val("off");
     $('#sidebar').animate({'width':0},700);
@@ -25,7 +27,7 @@ $('#chatting-btn').click(function(){
 $('#play').click(function() {
   if($('#nickname').val() !== ''){
     if($('#nickname').val().length > 8){
-      alert("닉네임은 최대 7글자까지 가능합니다.")
+      alert("닉네임은 최대 7글자까지 가능합니다.");
       return;
     }
     name = $('#nickname').val();
@@ -52,12 +54,13 @@ $('#msgenter').click((event) => {
 
 // receiveMessage
 socket.on('toclient', function (data) {
+  chattingCounter($('.chatting-count'));
   receiveMessage(data);
 });
 
 $('.all-chatting').click(function (event) {
   $('#msgs').empty();
-})
+});
 
 // function
 function sendMessage(username, usermsg) {
@@ -76,4 +79,14 @@ function showMessage(usermsg) {
   let msg = usermsg.val();
   $('#msgs').append(`<li class="my-chattinglist"><span class="chattingbox">${msg}</span></li>`);
   $('#msgcontainer').scrollTop($('#msgcontainer')[0].scrollHeight);
+}
+
+function chattingCounter(e) {
+  var ct = parseInt(e.text());
+  if(ct>99){
+	e.text('99+');
+  }else{
+	e.text(ct+1);  
+  }
+  e.removeClass('d-none');
 }

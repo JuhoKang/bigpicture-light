@@ -152,3 +152,11 @@ canvas {
 	bottom: 15px;
 	left: 15px;
 }
+.chatting-count{
+	display: inline-block;
+	background-color: #3FB8AF;
+	border-radius: 50%;
+    padding: 0 5px 3px 5px;
+    line-height: 1em;
+    text-align: center;
+}
