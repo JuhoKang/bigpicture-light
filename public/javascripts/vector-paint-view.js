@@ -466,6 +466,7 @@ $(".upper-canvas").mouseout(()=>{
   if(previewObj != null) {
     canvas.remove(previewObj);
     previewObj = null;
+    canvas.renderAll();
   }
 });
 $(".upper-canvas").mouseover((e)=>{
