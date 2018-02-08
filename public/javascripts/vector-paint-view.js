@@ -737,6 +737,47 @@ function moveToCoord() {
   }
 }
 
+// right click event
+$(".canvas-container").bind("contextmenu", function(event) { 
+  event.preventDefault();
+  $(".custom-menu").css({top: event.pageY + "px", left: event.pageX + "px"});
+  $(".custom-menu").toggle();
+}).bind("click", function(event) {
+  $(".custom-menu").hide();
+});
+$(".custom-menu").bind("contextmenu", function(event) { 
+  event.preventDefault();
+  $(".custom-menu").toggle();
+});
+
+$("#marker-add-btn").click( () => {
+  if($("#marker-list").find("li").length > 4){
+    alert("최대 5개까지 설정 가능합니다.")
+    return;
+  }
+  var curWidth = canvas.freeDrawingBrush.width;
+  var curColor = canvas.freeDrawingBrush.color;
+  $("#marker-list").append(`<li><button class="btn-sm marker-btn" 
+  style="background-color:${curColor}" 
+  data-color=${curColor} 
+  data-width=${curWidth}>
+  ${curWidth}</button>
+  <button class="btn-sm btn-dark" id="marker-remove-btn">
+  <span class="fa fa-minus"></span></button></li>`);
+});
+
+$(document).on("click", ".marker-btn", function(e){
+  var marker = $(e.target);
+  hueb.setColor(marker.data("color"));
+  lineWidthSlider.noUiSlider.set(marker.data("width"));
+  canvas.freeDrawingBrush.width = marker.data("width");
+  $(".custom-menu").hide();
+});
+
+$(document).on("click","#marker-remove-btn",function(e){
+  $(e.target).parent().remove();
+});
+
 //not used
 // function zoomByMouseCoords(e, isZoomIn) {
 //   const pointer = canvas.getPointer(e);

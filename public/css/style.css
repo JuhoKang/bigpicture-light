@@ -160,3 +160,17 @@ canvas {
   line-height: 1em;
   text-align: center;
 }
+.custom-menu {
+  display: none;
+  z-index: 1000;
+  position: absolute;
+  padding: 2px 5px 2px 5px;
+  background-color:#fff;
+  border: 1px solid #222;
+}
+.marker-btn {
+  color: white;
+  width: 56px;
+  height: 33px;
+  text-align: center;
+}
