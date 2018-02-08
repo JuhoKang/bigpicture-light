@@ -9,12 +9,39 @@
 const socket = io();
 const canvas = new fabric.Canvas('c', {
   isDrawingMode: true,
+  stateful: false,
+  renderOnAddRemove: false,
+  selection: false,
+  skipTargetFind: false,
 });
 
 //make the canvas objects unselectable
 canvas.selection = false;
 
 const CANVAS_SIZE = 4096;
+
+let isRendering = false;
+let isAnimating = false;
+
+const render = canvas.renderAll.bind(canvas);
+const stop = () => isAnimating = false;
+const play = () => {
+    isAnimating = true;
+    canvas.renderAll();
+};
+
+canvas.renderAll = () => {
+    if (!isRendering) {
+        isRendering = true;
+        requestAnimationFrame(() => {
+            render();
+            isRendering = false;
+            if (isAnimating) {
+                canvas.renderAll();
+            }
+        });
+    }
+};
 
 let chunk = {
   x: CANVAS_SIZE * 10,
@@ -63,7 +90,9 @@ noUiSlider.create(lineWidthSlider, {
 
 lineWidthSlider.noUiSlider.on('change', (e) => {
   canvas.freeDrawingBrush.width = parseInt(e, 10) || 1;
-  updatePreview();
+  if(previewObj != null) {
+    updatePreview();
+  }
 });
 //---------------- draw line width slider ----- end
 
@@ -88,7 +117,9 @@ var hueb = new Huebee('.color-input', {
 
 hueb.on('change', function (color, hue, sat, lum) {
   canvas.freeDrawingBrush.color = color;
-  updatePreview();
+  if(previewObj != null) {
+    updatePreview();
+  }
 });
 
 // mobile view
@@ -460,6 +491,7 @@ $(".upper-canvas").mouseout(()=>{
   if(previewObj != null) {
     canvas.remove(previewObj);
     previewObj = null;
+    canvas.renderAll();
   }
 });
 $(".upper-canvas").mouseover((e)=>{
