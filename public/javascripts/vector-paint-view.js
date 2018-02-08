@@ -9,6 +9,8 @@
 const socket = io();
 const canvas = new fabric.Canvas('c', {
   isDrawingMode: true,
+  stateful: false,
+  renderOnAddRemove: false,
 });
 
 //make the canvas objects unselectable
