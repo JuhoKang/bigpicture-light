@@ -541,9 +541,9 @@ function updateCanvasMove() {
       if (currentChunks[`${i},${j}`] !== true) {
         console.log(`adding : ${i},${j}`);
         //if(canvas.getZoom() > 2) {
-          fetchPng(i, j);
+          //fetchPng(i, j);
         //} else {
-        //  fetchChunkFromOther(i, j);
+          fetchChunkFromOther(i, j);
         //}
         currentChunks[`${i},${j}`] = true;
       }
