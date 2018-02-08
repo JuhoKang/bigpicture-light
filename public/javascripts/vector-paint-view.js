@@ -19,6 +19,9 @@ const canvas = new fabric.Canvas('c', {
 canvas.selection = false;
 
 const CANVAS_SIZE = 4096;
+const DRAWABLE_ZOOM_LIMIT = 0.5;
+const POPULAR_CHUNK_COORD_START = 10;
+const POPULAR_CHUNK_COORD_STOP = 10;
 
 let isRendering = false;
 let isAnimating = false;
@@ -26,21 +29,21 @@ let isAnimating = false;
 const render = canvas.renderAll.bind(canvas);
 const stop = () => isAnimating = false;
 const play = () => {
-    isAnimating = true;
-    canvas.renderAll();
+  isAnimating = true;
+  canvas.renderAll();
 };
 
 canvas.renderAll = () => {
-    if (!isRendering) {
-        isRendering = true;
-        requestAnimationFrame(() => {
-            render();
-            isRendering = false;
-            if (isAnimating) {
-                canvas.renderAll();
-            }
-        });
-    }
+  if (!isRendering) {
+    isRendering = true;
+    requestAnimationFrame(() => {
+      render();
+      isRendering = false;
+      if (isAnimating) {
+        canvas.renderAll();
+      }
+    });
+  }
 };
 
 let chunk = {
@@ -84,13 +87,13 @@ noUiSlider.create(lineWidthSlider, {
   },
   range: {
     min: 0,
-    max: 150,
+    max: 60,
   },
 });
 
 lineWidthSlider.noUiSlider.on('change', (e) => {
   canvas.freeDrawingBrush.width = parseInt(e, 10) || 1;
-  if(previewObj != null) {
+  if (previewObj != null) {
     updatePreview();
   }
 });
@@ -99,8 +102,12 @@ lineWidthSlider.noUiSlider.on('change', (e) => {
 fabric.Object.prototype.transparentCorners = false;
 
 function changeModeToDrawingMode() {
-  canvas.isDrawingMode = true;
-  canvas.setCursor(canvas.freeDrawingCursor);
+  if (canvas.getZoom() < DRAWABLE_ZOOM_LIMIT) {
+    changeInfoText("더 줌인 하셔야 그림을 그릴수 있어요!", "shake", "alert-danger");
+  } else {
+    canvas.isDrawingMode = true;
+    canvas.setCursor(canvas.freeDrawingCursor);
+  }
 }
 
 function changeModeToNavigatingMode() {
@@ -117,7 +124,7 @@ var hueb = new Huebee('.color-input', {
 
 hueb.on('change', function (color, hue, sat, lum) {
   canvas.freeDrawingBrush.color = color;
-  if(previewObj != null) {
+  if (previewObj != null) {
     updatePreview();
   }
 });
@@ -142,11 +149,11 @@ $(document).keyup(function (event) {
   // console.log(event);
   if (event.keyCode === 90 && event.ctrlKey) {
     // console.log('ctrl z');
-    unDo();
+    undo();
   }
 });
 
-function unDo() {
+function undo() {
   var objects = canvas.getObjects();
   // console.log(objects);
   if (drawCount > 0) {
@@ -156,6 +163,7 @@ function unDo() {
         // console.log(objects[i]);
         removeFromRemote(objects[i]);
         canvas.remove(objects[i]);
+        canvas.renderAll();
         drawCount--;
         break;
       }
@@ -192,7 +200,7 @@ const guid = uuidv4();
 //generate guid
 //code from https://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript/2117523#2117523
 function uuidv4() {
-  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+  return ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, c =>
     (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16)
   )
 }
@@ -223,7 +231,7 @@ const onObjectAdded = (e) => {
 
 canvas.on('object:added', onObjectAdded);
 
-function fetchChunk(x, y) {
+/*function fetchChunk(x, y) {
   canvas.off('object:added');
   $.get(`/api/paintchunk/json/coord/${x}/${y}`).then((json) => {
     canvas.clear();
@@ -233,9 +241,10 @@ function fetchChunk(x, y) {
       o.selectable = false;
     });
     canvas.on('object:added', onObjectAdded);
+    canvas.renderAll();
   });
   currentChunks[`${x},${y}`] = true;
-}
+}*/
 
 function fetchChunk(x, y) {
   socket.emit('getChunkData', { x, y, isMain: true });
@@ -252,7 +261,9 @@ socket.on('mainChunkSend', (data) => {
     o.selectable = false;
   });
   currentChunks[`${data.x},${data.y}`] = true;
+  panToRandom();
   canvas.on('object:added', onObjectAdded);
+  canvas.renderAll();
 });
 
 function fetchOtherChunkSocket(x, y) {
@@ -272,9 +283,10 @@ socket.on('otherChunkSend', (data) => {
     changeInfoText('로딩 완료', 'flash', 'alert-success');
   } else {
     fetchCanvas.loadFromJSON(data.json, () => {
+      canvas.renderAll();
       canvas.on('object:added', onObjectAdded);
       // console.log(`fetch done : ${data.x},${data.y}`);
-      changeInfoText('로딩 완료', 'flash', 'alert-success');
+      // changeInfoText('로딩 완료', 'flash', 'alert-success');
     }, (o, object) => {
       object.left += data.x - startPoint.x;
       object.top += data.y - startPoint.y;
@@ -292,43 +304,7 @@ socket.on('otherChunkSend', (data) => {
 
 //fetchChunkFromOther differs with fetchChunk because the current chunk is different with other 
 function fetchChunkFromOther(x, y) {
-  const fc = document.createElement('canvas');
-  // 131072 = CANVAS_SIZE * 32
-  if (x < 0 || y < 0 || x > 131072 || y > 131072) {
-    // console.log('here');
-    const patternSourceCanvas = new fabric.StaticCanvas();
-    const darkRect = new fabric.Rect({
-      width: 32,
-      height: 32,
-      fill: '#000',
-    });
-    patternSourceCanvas.add(darkRect);
-    patternSourceCanvas.renderAll();
-    const pattern = new fabric.Pattern({
-      source: function () {
-        patternSourceCanvas.setDimensions({
-          width: 64,
-          height: 64,
-        });
-        patternSourceCanvas.renderAll();
-        return patternSourceCanvas.getElement();
-      },
-      repeat: 'repeat',
-    });
-
-    const rect = new fabric.Rect({
-      width: CANVAS_SIZE,
-      height: CANVAS_SIZE,
-      left: x - startPoint.x,
-      top: y - startPoint.y,
-      fill: pattern,
-    });
-    rect.selectable = false;
-    rect.isNotMine = true;
-    canvas.add(rect);
-  } else {
-    fetchOtherChunkSocket(x, y);
-  }
+  fetchOtherChunkSocket(x, y);
 }
 
 function onResize() {
@@ -345,6 +321,7 @@ function leaveRoom(x, y) {
 }
 
 function init() {
+  selectStartChunk();
   fetchChunk(chunk.x, chunk.y);
   // console.log(`startpoint : ${startPoint.x},${startPoint.y}`);
   joinRoom(chunk.x, chunk.y);
@@ -352,7 +329,9 @@ function init() {
   $('#init-modal').modal({ backdrop: 'static', keyboard: false });
 }
 
-
+function panToRandom(){
+  canvas.relativePan(new fabric.Point(getRandomIntInclusive(-500, -1500), getRandomIntInclusive(-500, -1500)));
+}
 
 let starttime;
 
@@ -384,6 +363,7 @@ const onUndoFromOther = (uid) => {
   for (var i = objects.length - 1; i > -1; i--) {
     if (objects[i].owner === uid) {
       canvas.remove(objects[i]);
+      canvas.renderAll();
       break;
     }
   }
@@ -395,7 +375,7 @@ var previewObj = null;
 
 function createPreview(x, y) {
   canvas.off('object:added');
-  previewObj = new fabric.Circle({radius: (canvas.freeDrawingBrush.width/2), fill: canvas.freeDrawingBrush.color, left:100, top:100});
+  previewObj = new fabric.Circle({ radius: (canvas.freeDrawingBrush.width / 2), fill: canvas.freeDrawingBrush.color, left: 100, top: 100 });
   canvas.add(previewObj);
   //canvas.renderAll();
   canvas.on('object:added', onObjectAdded);
@@ -403,7 +383,7 @@ function createPreview(x, y) {
 
 function updatePreview() {
   previewObj.fill = canvas.freeDrawingBrush.color;
-  previewObj.radius = canvas.freeDrawingBrush.width/2;
+  previewObj.radius = canvas.freeDrawingBrush.width / 2;
 }
 
 function movePreview(x, y) {
@@ -470,7 +450,7 @@ function userNavMove(e) {
 
 function mouseHoverPreview(e) {
   let point = canvas.getPointer(e);
-  movePreview(point.x,point.y);
+  movePreview(point.x, point.y);
 }
 
 /*canvas.on('mouse:over', (ew) => {
@@ -487,15 +467,15 @@ function mouseHoverPreview(e) {
   } else {
   }
 });*/
-$(".upper-canvas").mouseout(()=>{
-  if(previewObj != null) {
+$(".upper-canvas").mouseout(() => {
+  if (previewObj != null) {
     canvas.remove(previewObj);
     previewObj = null;
     canvas.renderAll();
   }
 });
-$(".upper-canvas").mouseover((e)=>{
-  if(canvas.isDrawingMode) {
+$(".upper-canvas").mouseover((e) => {
+  if (canvas.isDrawingMode) {
     let tempPoint = canvas.getPointer(e);
     createPreview(tempPoint.x, tempPoint.y);
   }
@@ -510,7 +490,7 @@ canvas.on('mouse:out', (ew) => {
 canvas.on('mouse:move', (ew) => {
   //console.log(canvas.getPointer(ew.e));
   if (ew.e instanceof MouseEvent) {
-    if(canvas.isDrawingMode) {
+    if (canvas.isDrawingMode) {
       mouseHoverPreview(ew.e);
     } else {
       userNavMove(ew.e);
@@ -573,9 +553,9 @@ function updateCanvasMove() {
       if (currentChunks[`${i},${j}`] !== true) {
         console.log(`adding : ${i},${j}`);
         //if(canvas.getZoom() > 2) {
-          //fetchPng(i, j);
+        //fetchPng(i, j);
         //} else {
-          fetchChunkFromOther(i, j);
+        fetchChunkFromOther(i, j);
         //}
         currentChunks[`${i},${j}`] = true;
       }
@@ -598,6 +578,10 @@ function zoomToCenter(isZoomIn) {
 
   } else {
     if (canvas.getZoom() > 0.04) {
+      if (canvas.getZoom() < DRAWABLE_ZOOM_LIMIT) {
+        changeModeToNavigatingMode();
+        changeInfoText("줌아웃을 많이 해서 내비게이션 모드로 전환합니다.", "shake", "alert-danger");
+      }
       canvas.zoomToPoint(new fabric.Point(canvas.width / 2, canvas.height / 2), canvas.getZoom() * 0.9);
     } else {
       // console.log('no zoom any more');
@@ -605,6 +589,7 @@ function zoomToCenter(isZoomIn) {
       canvas.renderAll();
     }
   }
+  reflectZoomOnMap();
 }
 
 let canWheel = true;
@@ -616,12 +601,12 @@ function onWheel(e) {
     //console.log('wheel back');
     zoomToCenter(false);
     updateCanvasMove();
-    changeInfoText('줌 아웃', 'fadeIn', 'alert-primary');
+    //changeInfoText('줌 아웃', 'fadeIn', 'alert-primary');
   } else {
     //console.log('wheel foward');
     zoomToCenter(true);
     updateCanvasMove();
-    changeInfoText('줌 인', 'fadeIn', 'alert-primary');
+    //changeInfoText('줌 인', 'fadeIn', 'alert-primary');
   }
   canWheel = true;
 }
@@ -686,6 +671,19 @@ function fillCanvasWithImage(x, y, pngData) {
   fabric.Image.fromURL(pngData, (oImg) => {
     canvas.add(oImg);
   });
+}
+
+function getRandomIntInclusive(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
+}
+
+function selectStartChunk() {
+  chunk.x = getRandomIntInclusive(POPULAR_CHUNK_COORD_START, POPULAR_CHUNK_COORD_STOP) * CANVAS_SIZE;
+  startPoint.x = chunk.x;
+  chunk.y = getRandomIntInclusive(POPULAR_CHUNK_COORD_START , POPULAR_CHUNK_COORD_STOP) * CANVAS_SIZE;
+  startPoint.y = chunk.y;
 }
 
 init();
