@@ -18,16 +18,23 @@ block content
 					span.fa.fa-undo
 					|  (Ctrl+Z)
 				button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark.white-space-nowrap#map-toggle 지도 (M)
-				button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark.white-space-nowrap#chatting-btn(value="off") 채팅창 (C)
-				//- button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark.white-space-nowrap(onclick="location.href='https://github.com/JuhoKang/bigpicture-light'") GitHub
+				button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark.white-space-nowrap#chatting-btn(value="off") 
+					span 채팅창 (C) 
+					span.chatting-count.d-none 0
+				//- button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark.white-space-nowrap(onclick="location.href="https://github.com/JuhoKang/bigpicture-light"") GitHub
 				button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark.white-space-nowrap#cropper 캡쳐
-				.col-lg-4.col-md-12.col-sm-12.alert.alert-secondary.btn-block#infotext(style='margin-bottom:0rem; margin-top:0rem; padding:0 0 0 5px') 환영합니다!
+				.col-lg-4.col-md-12.col-sm-12.alert.alert-secondary.btn-block#infotext(style="margin-bottom:0rem; margin-top:0rem; padding:0 0 0 5px") 환영합니다!
 			.row
 				.col-lg-12
 					.row#canvas-container-div
 						#map-container
 							canvas#map
 						canvas#c
+		.zoom-button-container
+			button.btn-dark.m-1.zoomin-btn
+				span.fa.fa-search-plus
+			button.btn-dark.m-1.zoomout-btn
+				span.fa.fa-search-minus
 		#cropper-bottom
 			button.col-lg-2.col-md-2.col-sm-2.col-6.btn-md.btn-dark#cropper-zoomIn 확대
 			button.col-lg-2.col-md-2.col-sm-2.col-6.btn-md.btn-dark#cropper-zoomOut 축소
@@ -45,7 +52,7 @@ block content
 	script(type="text/javascript" src="/vendor/fabric/fabric.min.js")
 	script(type="text/javascript" src="/javascripts/vector-paint-view.js")
 	script(type="text/javascript" src="/javascripts/map-view.js")
-	script(type='text/javascript' src="/javascripts/chatting.js")
-	script(type='text/javascript' src="/javascripts/shortcuts.js")
-	script(type='text/javascript' src="/cropper/cropper.min.js")
-	script(type='text/javascript' src="/javascripts/cropper.js")
+	script(type="text/javascript" src="/javascripts/chatting.js")
+	script(type="text/javascript" src="/javascripts/shortcuts.js")
+	script(type="text/javascript" src="/cropper/cropper.min.js")
+	script(type="text/javascript" src="/javascripts/cropper.js")

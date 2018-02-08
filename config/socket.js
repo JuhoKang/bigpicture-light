@@ -1,7 +1,7 @@
-const PaintChunk = require('../models/PaintChunk');
-const debug = require('debug')('socket');
-const paintChunkController = require('../controllers/paintChunkController');
-const fabric = require('fabric').fabric;
+const PaintChunk = require("../models/PaintChunk");
+const debug = require("debug")("socket");
+const paintChunkController = require("../controllers/paintChunkController");
+const fabric = require("fabric").fabric;
 
 const MAX_CHUNK_HEALTH = 3;
 const CHUNK_UPDATE_MILLSEC_TIME = 10000;
@@ -44,7 +44,7 @@ module.exports = function (server) {
           } else {
             resolve("chunk is null");
             //no chunk data from database
-            //console.log('chunk is null');
+            //console.log("chunk is null");
           }
         }, (err) => {
           console.log(err);
@@ -82,9 +82,9 @@ io.on("connection", function (socket) {
         if (chunk != null) {
           chunks[`${data.x},${data.y}`].loadFromJSON(chunk.data);
           if (data.isMain) {
-            socket.emit('mainChunkSend', { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
+            socket.emit("mainChunkSend", { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
           } else {
-            socket.emit('otherChunkSend', { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
+            socket.emit("otherChunkSend", { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
           }
         } else {
           //no chunk data from database
@@ -103,9 +103,9 @@ io.on("connection", function (socket) {
       chunkInterval[`${data.x},${data.y}`] = interval;
     } else {
       if (data.isMain) {
-        socket.emit('mainChunkSend', { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
+        socket.emit("mainChunkSend", { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
       } else {
-        socket.emit('otherChunkSend', { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
+        socket.emit("otherChunkSend", { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
       }
     }
   });
@@ -167,44 +167,44 @@ io.on("connection", function (socket) {
       });
     }
 
-    socket.broadcast.to(`chunk_room:${data.xAxis},${data.yAxis}`).emit('objectFromOther', {
+    socket.broadcast.to(`chunk_room:${data.xAxis},${data.yAxis}`).emit("objectFromOther", {
       data: data.data,
       uid: data.uid,
     });
 
   });
 
-  socket.on('removeObject', (data) => {
+  socket.on("removeObject", (data) => {
     let chunkObjects = chunks[`${data.xAxis},${data.yAxis}`].getObjects();
     for (let i = chunkObjects.length - 1; i > -1; i--) {
       if (chunkObjects[i].owner === data.uid) {
         chunks[`${data.xAxis},${data.yAxis}`].remove(chunkObjects[i]);
-        socket.broadcast.to(`chunk_room:${data.xAxis},${data.yAxis}`).emit('undoFromOther', data.uid);
+        socket.broadcast.to(`chunk_room:${data.xAxis},${data.yAxis}`).emit("undoFromOther", data.uid);
         break;
       }
     }
   });
 
-  socket.on('getPng', (data) => {
+  socket.on("getPng", (data) => {
     initChunk(data.xAxis, data.yAxis).then(() => {
-      console.log('hello');
+      //console.log("hello");
       if (chunks[`${data.xAxis},${data.yAxis}`] != null) {
         const target = chunks[`${data.xAxis},${data.yAxis}`];
         const png = target.toDataURL({ width: 4096, height: 4096 });
-        console.log('pngHit');
-        socket.emit('pngHit', { x: data.xAxis, y: data.yAxis, pngData: png });
+        //console.log("pngHit");
+        socket.emit("pngHit", { x: data.xAxis, y: data.yAxis, pngData: png });
       }
     }).catch(() => {
-      console.log('not hello');
+      console.log("not hello");
     });
 
   });
 
-  socket.on('leaveRoom', (data) => {
+  socket.on("leaveRoom", (data) => {
     socket.leave(`chunk_room:${data.xAxis},${data.yAxis}`);
   });
 
-  socket.on('fromclient', function (data) {
+  socket.on("fromclient", function (data) {
     let msg = {
       from: {
         name: data.username,
@@ -225,7 +225,7 @@ io.on("connection", function (socket) {
 
     const destUsersKeys = Object.keys(destUsers);
     for (let i = 0; i < destUsersKeys.length; i += 1) {
-      socket.broadcast.to(destUsersKeys[i]).emit('toclient', msg);
+      socket.broadcast.to(destUsersKeys[i]).emit("toclient", msg);
     }
   });
 });

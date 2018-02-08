@@ -2,9 +2,9 @@
   $:true
   socket:true*/
 
-let name = '비회원';
+let name = "비회원";
 
-$('#chatting-btn').click(function(){
+$("#chatting-btn").click(function(){
   if($(this).val()=="off"){
     $(this).val("on");
     var fullWidth = window.innerWidth;
@@ -15,65 +15,78 @@ $('#chatting-btn').click(function(){
     else{
       w = 300;
     }
-    $('#sidebar').animate({'width':w},700);
+    $("#sidebar").animate({"width":w},700);
+    $(".chatting-count").text("0");
+    $(".chatting-count").addClass("d-none");
   }else{
     $(this).val("off");
-    $('#sidebar').animate({'width':0},700);
+    $("#sidebar").animate({"width":0},700);
   }
 });
 
-$('#play').click(function() {
-  if($('#nickname').val() !== ''){
-    if($('#nickname').val().length > 8){
-      alert("닉네임은 최대 7글자까지 가능합니다.")
+$("#play").click(function() {
+  if($("#nickname").val() !== ""){
+    if($("#nickname").val().length > 8){
+      alert("닉네임은 최대 7글자까지 가능합니다.");
       return;
     }
-    name = $('#nickname').val();
-    $('.my-nick-name').text(name);
-    $('#init-modal').modal('hide');
+    name = $("#nickname").val();
+    $(".my-nick-name").text(name);
+    $("#init-modal").modal("hide");
   }
 });
 
 // send Message
-$('#msgbox').keyup((event) => {
-  if (event.keyCode == 13 && $('#msgbox').val() !== '') {
-    sendMessage(name, $('#msgbox'));
-    showMessage($('#msgbox'));
-    $('#msgbox').val('');
+$("#msgbox").keyup((event) => {
+  if (event.keyCode == 13 && $("#msgbox").val() !== "") {
+    sendMessage(name, $("#msgbox"));
+    showMessage($("#msgbox"));
+    $("#msgbox").val("");
   }
 });
-$('#msgenter').click((event) => {
-  if($('#msgbox').val() !== ''){
-    sendMessage(name, $('#msgbox'));
-    showMessage($('#msgbox'));
-    $('#msgbox').val('');
+$("#msgenter").click((event) => {
+  if($("#msgbox").val() !== ""){
+    sendMessage(name, $("#msgbox"));
+    showMessage($("#msgbox"));
+    $("#msgbox").val("");
   }
 });
 
 // receiveMessage
-socket.on('toclient', function (data) {
+socket.on("toclient", function (data) {
+  chattingCounter($(".chatting-count"));
   receiveMessage(data);
 });
 
-$('.all-chatting').click(function (event) {
-  $('#msgs').empty();
-})
+$(".all-chatting").click(function (event) {
+  $("#msgs").empty();
+});
 
 // function
 function sendMessage(username, usermsg) {
-  socket.emit('fromclient', {
+  socket.emit("fromclient", {
     username: username,
     msg: usermsg.val(),
   });
 }
 
 function receiveMessage(data) {
-  $('#msgs').append(`<li class="chattinglist"><span class="chattingbox">${data.from.name} : ${data.msg} </span></li>`);
-  $('#msgcontainer').scrollTop($('#msgcontainer')[0].scrollHeight);
+  $("#msgs").append(`<li class="chattinglist"><span class="chattingbox">${data.from.name} : ${data.msg} </span></li>`);
+  $("#msgcontainer").scrollTop($("#msgcontainer")[0].scrollHeight);
 }
 
 function showMessage(usermsg) {
   let msg = usermsg.val();
-  $('#msgs').append(`<li class="my-chattinglist"><span class="chattingbox">${msg}</span></li>`);
-  $('#msgcontainer').scrollTop($('#msgcontainer')[0].scrollHeight);
+  $("#msgs").append(`<li class="my-chattinglist"><span class="chattingbox">${msg}</span></li>`);
+  $("#msgcontainer").scrollTop($("#msgcontainer")[0].scrollHeight);
+}
+
+function chattingCounter(e) {
+  var ct = parseInt(e.text());
+  if(ct>99){
+    e.text("99+");
+  }else{
+    e.text(ct+1);  
+  }
+  e.removeClass("d-none");
 }

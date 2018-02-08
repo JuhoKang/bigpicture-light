@@ -615,6 +615,18 @@ canvas.on('mouse:wheel', (ew) => {
   onWheel(ew.e);
 });
 
+$('.zoomin-btn').click( () => {
+  zoomToCenter(true);
+  updateCanvasMove();
+  changeInfoText('줌 인', 'fadeIn', 'alert-primary');
+});
+
+$('.zoomout-btn').click( () => {
+  zoomToCenter(false);
+  updateCanvasMove();
+  changeInfoText('줌 아웃', 'fadeIn', 'alert-primary');
+});
+
 $.fn.extend({
   animateCss: function (animationName) {
     var animationEnd = 'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend';
