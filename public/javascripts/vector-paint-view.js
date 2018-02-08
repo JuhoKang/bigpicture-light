@@ -11,12 +11,37 @@ const canvas = new fabric.Canvas('c', {
   isDrawingMode: true,
   stateful: false,
   renderOnAddRemove: false,
+  selection: false,
+  skipTargetFind: false,
 });
 
 //make the canvas objects unselectable
 canvas.selection = false;
 
 const CANVAS_SIZE = 4096;
+
+let isRendering = false;
+let isAnimating = false;
+
+const render = canvas.renderAll.bind(canvas);
+const stop = () => isAnimating = false;
+const play = () => {
+    isAnimating = true;
+    canvas.renderAll();
+};
+
+canvas.renderAll = () => {
+    if (!isRendering) {
+        isRendering = true;
+        requestAnimationFrame(() => {
+            render();
+            isRendering = false;
+            if (isAnimating) {
+                canvas.renderAll();
+            }
+        });
+    }
+};
 
 let chunk = {
   x: CANVAS_SIZE * 10,
