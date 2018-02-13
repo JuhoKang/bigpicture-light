@@ -28,6 +28,7 @@ Consumer demand for contents are increasing. Traditionaly text, video, image sha
 #### Build Requirements
 
 * `node 6.11.3+`
+* `ubuntu 14.04 LTS+`
 
 #### Installation
 
