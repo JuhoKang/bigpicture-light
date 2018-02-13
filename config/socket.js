@@ -1,6 +1,7 @@
 const PaintChunk = require("../models/PaintChunk");
 const debug = require("debug")("socket");
 const paintChunkController = require("../controllers/paintChunkController");
+const sharp = require('sharp');
 const fabric = require("fabric").fabric;
 
 const MAX_CHUNK_HEALTH = 3;
@@ -190,12 +191,21 @@ io.on("connection", function (socket) {
       //console.log("hello");
       if (chunks[`${data.xAxis},${data.yAxis}`] != null) {
         const target = chunks[`${data.xAxis},${data.yAxis}`];
-        const png = target.toDataURL({ width: 4096, height: 4096 });
-        //console.log("pngHit");
-        socket.emit("pngHit", { x: data.xAxis, y: data.yAxis, pngData: png });
+        const png = target.toDataURL({ width: CANVAS_SIZE, height: CANVAS_SIZE});
+        
+        const modPng = png.substring(22,png.length);
+        //console.log(modPng);
+        sharp(new Buffer(modPng, 'base64'))
+          .resize(512,512)
+          .toBuffer()
+          .then(data => {
+            socket.emit("pngHit", { x: data.xAxis, y: data.yAxis, pngData: data.toString('base64') });
+            socket.emit("pngHit", { x: data.xAxis, y: data.yAxis, pngData: png.toString('base64') });
+          })
+          .catch(err => {console.log(err)});        
       }
     }).catch(() => {
-      console.log("not hello");
+      console.log("error?");
     });
 
   });

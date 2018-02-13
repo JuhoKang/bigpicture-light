@@ -666,7 +666,9 @@ socket.on("pngHit", (data) => {
   console.log("pngHit");
   pngChunks[`${data.x},${data.y}`] = data.pngData;
   const png = pngChunks[`${data.x},${data.y}`];
-  canvas.off("object:added");
+  console.log(png);
+  open(png);
+  /*canvas.off("object:added");
   if (png == null) {
     //console.log("png null");
     canvas.on("object:added", onObjectAdded);
@@ -683,7 +685,7 @@ socket.on("pngHit", (data) => {
       canvas.add(oImg);
       canvas.on("object:added", onObjectAdded);
     });
-  }
+  }*/
 });
 
 function fillCanvasWithImage(x, y, pngData) {
