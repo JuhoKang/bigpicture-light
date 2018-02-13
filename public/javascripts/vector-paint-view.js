@@ -93,9 +93,12 @@ noUiSlider.create(lineWidthSlider, {
 
 lineWidthSlider.noUiSlider.on('change', (e) => {
   canvas.freeDrawingBrush.width = parseInt(e, 10) || 1;
-  if (previewObj != null) {
-    updatePreview();
-  }
+  console.log("change");
+  //updatePreview();
+});
+lineWidthSlider.noUiSlider.on('update', (e) => {
+  updatePreviewWidth(parseInt(e, 10) || 1);
+  console.log("uislider update");
 });
 //---------------- draw line width slider ----- end
 
@@ -124,9 +127,7 @@ var hueb = new Huebee('.color-input', {
 
 hueb.on('change', function (color, hue, sat, lum) {
   canvas.freeDrawingBrush.color = color;
-  if (previewObj != null) {
-    updatePreview();
-  }
+  updatePreviewColor(color);
 });
 
 // mobile view
@@ -377,19 +378,26 @@ function createPreview(x, y) {
   canvas.off('object:added');
   previewObj = new fabric.Circle({ radius: (canvas.freeDrawingBrush.width / 2), fill: canvas.freeDrawingBrush.color, left: 100, top: 100 });
   canvas.add(previewObj);
-  //canvas.renderAll();
   canvas.on('object:added', onObjectAdded);
 };
 
-function updatePreview() {
-  previewObj.fill = canvas.freeDrawingBrush.color;
-  previewObj.radius = canvas.freeDrawingBrush.width / 2;
+function updatePreviewWidth(width) {
+  if(previewObj != null) {
+    previewObj.set("radius", width / 2);
+    canvas.renderAll();
+  }
+}
+
+function updatePreviewColor(color) {
+  if(previewObj != null) {
+    previewObj.fill = color;
+    canvas.renderAll();
+  }
 }
 
 function movePreview(x, y) {
   previewObj.left = x - previewObj.radius;
   previewObj.top = y - previewObj.radius;
-  canvas.renderAll();
 }
 
 let isPanning = false;
@@ -451,6 +459,7 @@ function userNavMove(e) {
 function mouseHoverPreview(e) {
   let point = canvas.getPointer(e);
   movePreview(point.x, point.y);
+  canvas.renderAll();
 }
 
 /*canvas.on('mouse:over', (ew) => {
@@ -467,8 +476,7 @@ function mouseHoverPreview(e) {
   } else {
   }
 });*/
-$(".upper-canvas").mouseout(() => {
-  if (previewObj != null) {
+$(".upper-canvas").mouseout(() => { if (previewObj != null) {
     canvas.remove(previewObj);
     previewObj = null;
     canvas.renderAll();
@@ -531,7 +539,6 @@ canvas.on('mouse:up', (ew) => {
 });
 
 function updateCanvasMove() {
-
   const vptc = canvas.vptCoords;
   const centerX = (vptc.tr.x + vptc.tl.x) / 2;
   const centerY = (vptc.bl.y + vptc.tl.y) / 2;
