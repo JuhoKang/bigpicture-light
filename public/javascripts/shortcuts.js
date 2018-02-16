@@ -42,7 +42,7 @@ $(document).keyup(function(event) {
 
 	// keypad +, keypad -, =, -
 	// in order
-	if (event.keyCode === 107 || event.keyCode === 109 || event.keyCode === 61 || eventCode === 173){
+	if (event.keyCode === 107 || event.keyCode === 109 || event.keyCode === 61 || event.keyCode === 173){
 		if (event.keyCode === 107 || event.keyCode === 61) {
 			zoomToCenter(true);
 		} else {
