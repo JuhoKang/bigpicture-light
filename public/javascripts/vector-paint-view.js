@@ -321,15 +321,6 @@ function leaveRoom(x, y) {
   socket.emit('leaveRoom', { x, y });
 }
 
-function init() {
-  selectStartChunk();
-  fetchChunk(chunk.x, chunk.y);
-  // console.log(`startpoint : ${startPoint.x},${startPoint.y}`);
-  joinRoom(chunk.x, chunk.y);
-  onResize();
-  $('#init-modal').modal({ backdrop: 'static', keyboard: false });
-}
-
 function panToRandom(){
   canvas.relativePan(new fabric.Point(getRandomIntInclusive(-500, -1500), getRandomIntInclusive(-500, -1500)));
 }
@@ -450,6 +441,7 @@ function userNavMove(e) {
     const x = e.screenX;
     const y = e.screenY;
     canvas.relativePan(new fabric.Point(x - beforePoint.x, y - beforePoint.y));
+    navigateMap(x, y);
     updateCanvasMove();
     beforePoint.x = x;
     beforePoint.y = y;
@@ -558,10 +550,11 @@ function updateCanvasMove() {
     for (let j = getLTC(vptc.tl.y) + startPoint.y; j <= getLTC(vptc.br.y) + startPoint.y; j += CANVAS_SIZE) {
       //console.log(`checking : ${i},${j}`);
       if (currentChunks[`${i},${j}`] !== true) {
-        console.log(`adding : ${i},${j}`);
+        //console.log(`adding : ${i},${j}`);
         //if(canvas.getZoom() > 2) {
         //fetchPng(i, j);
         //} else {
+        fetchMapPngs(i, j);
         fetchChunkFromOther(i, j);
         //}
         currentChunks[`${i},${j}`] = true;
@@ -662,12 +655,18 @@ function fetchPng(x, y) {
   socket.emit("getPng", { xAxis: x, yAxis: y });
 }
 
+
+
 socket.on("pngHit", (data) => {
-  console.log("pngHit");
+  console.log(data);
   pngChunks[`${data.x},${data.y}`] = data.pngData;
   const png = pngChunks[`${data.x},${data.y}`];
-  console.log(png);
-  open(png);
+  
+  fabric.Image.fromURL(`data:image/png;base64,${png}`, (oImg) => {
+    oImg.left += (data.x - startPoint.x)/64;
+    oImg.top += (data.y - startPoint .y)/64;
+    mapCanvas.add(oImg);
+  });
   /*canvas.off("object:added");
   if (png == null) {
     //console.log("png null");
@@ -678,10 +677,10 @@ socket.on("pngHit", (data) => {
     fabric.Image.fromURL(png, (oImg) => {
       console.log("adding");
       console.log(oImg);
-      oImg.left += data.x - startPoint.x;
-      oImg.top += data.y - startPoint.y;
+      //oImg.left += data.x - startPoint.x;
+      //oImg.top += data.y - startPoint.y;
       oImg.isNotMine = true;
-      oImg.selectable = false;
+      //oImg.selectable = false;
       canvas.add(oImg);
       canvas.on("object:added", onObjectAdded);
     });
@@ -705,6 +704,15 @@ function selectStartChunk() {
   startPoint.x = chunk.x;
   chunk.y = getRandomIntInclusive(POPULAR_CHUNK_COORD_START , POPULAR_CHUNK_COORD_STOP) * CANVAS_SIZE;
   startPoint.y = chunk.y;
+}
+
+function init() {
+  selectStartChunk();
+  fetchChunk(chunk.x, chunk.y);
+  // console.log(`startpoint : ${startPoint.x},${startPoint.y}`);
+  joinRoom(chunk.x, chunk.y);
+  onResize();
+  $('#init-modal').modal({ backdrop: 'static', keyboard: false });
 }
 
 init();

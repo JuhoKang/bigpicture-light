@@ -191,18 +191,21 @@ io.on("connection", function (socket) {
       //console.log("hello");
       if (chunks[`${data.xAxis},${data.yAxis}`] != null) {
         const target = chunks[`${data.xAxis},${data.yAxis}`];
+        //console.log(chunks);
+        //console.log(target);
         const png = target.toDataURL({ width: CANVAS_SIZE, height: CANVAS_SIZE});
-        
+        //console.log(png);
         const modPng = png.substring(22,png.length);
         //console.log(modPng);
         sharp(new Buffer(modPng, 'base64'))
-          .resize(512,512)
+          .resize(64,64)
           .toBuffer()
-          .then(data => {
-            socket.emit("pngHit", { x: data.xAxis, y: data.yAxis, pngData: data.toString('base64') });
-            socket.emit("pngHit", { x: data.xAxis, y: data.yAxis, pngData: png.toString('base64') });
+          .then(result => {
+            socket.emit("pngHit", { x: data.xAxis, y: data.yAxis, pngData: result.toString('base64') });
           })
           .catch(err => {console.log(err)});        
+      } else {
+        
       }
     }).catch(() => {
       console.log("error?");
