@@ -66,11 +66,17 @@
 	overflow-x: hidden;
 }
 .footer>input{
-	width: 77%;
+	width: calc( 81% - 35px );
 }
-.footer>button{
+.btn-enter{
 	margin-left: 3px;
-	width: 21%;
+	width: 18%;
+}
+.btn-plus{
+	width: 30px;
+	height: 30px;
+	margin-right: 3px;
+	padding: 5px;
 }
 #msgcontainer{
 	height: calc(100% - 104px);
