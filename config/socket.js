@@ -1,11 +1,13 @@
 const PaintChunk = require("../models/PaintChunk");
+const PaintPng = require("../models/PaintPng");
 const debug = require("debug")("socket");
 const paintChunkController = require("../controllers/paintChunkController");
+const paintPngController = require("../controllers/paintPngController");
 const sharp = require('sharp');
 const fabric = require("fabric").fabric;
 
 const MAX_CHUNK_HEALTH = 3;
-const CHUNK_UPDATE_MILLSEC_TIME = 10000;
+const CHUNK_UPDATE_MILLSEC_TIME = 30000;
 const CANVAS_SIZE = 4096;
 
 module.exports = function (server) {
@@ -13,9 +15,30 @@ module.exports = function (server) {
   const chunkHealth = {};
   const chunkInterval = {};
 
+  const pngs = {};
+
+
+  function updatePng(target, x, y, size) {
+    if (target != null) {
+      const png = target.toDataURL({ width: CANVAS_SIZE, height: CANVAS_SIZE});
+      debug("came in updatepng");
+      const modPng = png.substring(22,png.length);
+      //console.log(modPng);
+      sharp(new Buffer(modPng, "base64"))
+        .resize(size, size)
+        .toBuffer()
+        .then(result => {
+          console.log(`png update done ${x},${y}`)
+          pngs[`${x},${y}`] = result.toString("base64");
+        })
+        .catch(err => {console.log(err)});        
+    }
+  }
+
   function updateChunk(x, y) {
     debug(`update chunk ${x},${y} : chunkHealth is : ${chunkHealth[`${x},${y}`]}`);
     const target = chunks[`${x},${y}`];
+    updatePng(target, x, y, 64);
     paintChunkController.paintchunk_save(x, y, JSON.stringify(target)).then((x) => {
       if (chunkHealth[`${x},${y}`] < 0) {
         clearInterval(chunkInterval[`${x},${y}`]);
@@ -40,8 +63,10 @@ module.exports = function (server) {
           // if nothing exists a cell with null data returns.
           if (chunk != null) {
             chunks[`${x},${y}`] = fabric.createCanvasForNode(CANVAS_SIZE, CANVAS_SIZE);
-            chunks[`${x},${y}`].loadFromJSON(chunk.data);
-            resolve(`${x},${y}`);
+            chunks[`${x},${y}`].loadFromJSON(chunk.data, (done) => {
+              console.log(`done ${x},${y}`)
+              resolve(chunks[`${x},${y}`]);
+            });
           } else {
             resolve("chunk is null");
             //no chunk data from database
@@ -57,10 +82,12 @@ module.exports = function (server) {
 
         //initialize chunkHealth when initilizing chunk
         chunkHealth[`${x},${y}`] = MAX_CHUNK_HEALTH;
-        const interval = setInterval(() => {
-          updateChunk(x, y);
-        }, CHUNK_UPDATE_MILLSEC_TIME);
-        chunkInterval[`${x},${y}`] = interval;
+        if(chunkInterval[`${x},${y}`] == null) {
+          const interval = setInterval(() => {
+            updateChunk(x, y);
+          }, CHUNK_UPDATE_MILLSEC_TIME);
+          chunkInterval[`${x},${y}`] = interval;
+        } 
       } else {
         resolve(`${x},${y}`);
         //chunk is already intialized
@@ -73,6 +100,7 @@ io.on("connection", function (socket) {
   socket.on("getChunkData", (data) => {
     //no chunk hit on memory
     if (chunks[`${data.x},${data.y}`] == null) {
+      /*
       chunks[`${data.x},${data.y}`] = fabric.createCanvasForNode(CANVAS_SIZE, CANVAS_SIZE);
       //get data from database
       PaintChunk.findOne({
@@ -83,6 +111,7 @@ io.on("connection", function (socket) {
         if (chunk != null) {
           chunks[`${data.x},${data.y}`].loadFromJSON(chunk.data);
           if (data.isMain) {
+            console.log('send');
             socket.emit("mainChunkSend", { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
           } else {
             socket.emit("otherChunkSend", { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
@@ -102,6 +131,17 @@ io.on("connection", function (socket) {
         updateChunk(data.x, data.y);
       }, CHUNK_UPDATE_MILLSEC_TIME);
       chunkInterval[`${data.x},${data.y}`] = interval;
+      */
+      initChunk(data.x, data.y).then((chunk)=> {
+        if (data.isMain) {
+          console.log
+          socket.emit("mainChunkSend", { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
+        } else {
+          socket.emit("otherChunkSend", { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
+        }
+      }).catch(() => {
+        debug("chunk is null")
+      });
     } else {
       if (data.isMain) {
         socket.emit("mainChunkSend", { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
@@ -123,7 +163,7 @@ io.on("connection", function (socket) {
     //no chunk hit on memory
     if (chunks[`${data.xAxis},${data.yAxis}`] == null) {
       //console.log(`${data.xAxis},${data.yAxis} : is null`);
-      MAX_CHUNK_HEALTH
+      //MAX_CHUNK_HEALTH
       chunks[`${data.xAxis},${data.yAxis}`] = fabric.createCanvasForNode(CANVAS_SIZE, CANVAS_SIZE);
 
       PaintChunk.findOne({
@@ -187,29 +227,48 @@ io.on("connection", function (socket) {
   });
 
   socket.on("getPng", (data) => {
-    initChunk(data.xAxis, data.yAxis).then(() => {
-      //console.log("hello");
-      if (chunks[`${data.xAxis},${data.yAxis}`] != null) {
-        const target = chunks[`${data.xAxis},${data.yAxis}`];
-        //console.log(chunks);
-        //console.log(target);
-        const png = target.toDataURL({ width: CANVAS_SIZE, height: CANVAS_SIZE});
-        //console.log(png);
-        const modPng = png.substring(22,png.length);
-        //console.log(modPng);
-        sharp(new Buffer(modPng, 'base64'))
-          .resize(64,64)
-          .toBuffer()
-          .then(result => {
-            socket.emit("pngHit", { x: data.xAxis, y: data.yAxis, pngData: result.toString('base64') });
-          })
-          .catch(err => {console.log(err)});        
-      } else {
-        
-      }
-    }).catch(() => {
-      console.log("error?");
-    });
+
+    if(pngs[`${data.xAxis},${data.yAxis}`] == null) {
+      PaintPng.findOne({
+        x_axis: data.xAxis,
+        y_axis: data.yAxis,
+        size: data.size,
+      }).exec().then((png) => {
+        if(png != null) {
+          pngs[`${data.xAxis},${data.yAxis}`] = png.base64;
+          socket.emit("pngHit", { x: data.xAxis, y: data.yAxis, size: data.size, pngData: result.toString("base64") });
+        } else {
+          initChunk(data.xAxis, data.yAxis).then(() => {
+            //console.log("hello");
+            if (chunks[`${data.xAxis},${data.yAxis}`] != null) {
+              const target = chunks[`${data.xAxis},${data.yAxis}`];
+              //console.log(chunks);
+              //console.log(target);
+              const png = target.toDataURL({ width: CANVAS_SIZE, height: CANVAS_SIZE});
+              //console.log(png);
+              const modPng = png.substring(22,png.length);
+              //console.log(modPng);
+              sharp(new Buffer(modPng, "base64"))
+                .resize(data.size, data.size)
+                .toBuffer()
+                .then(result => {
+                  pngs[`${data.xAxis},${data.yAxis}`] = result.toString("base64");
+                  socket.emit("pngHit", { x: data.xAxis, y: data.yAxis, size: data.size, pngData: pngs[`${data.xAxis},${data.yAxis}`] });
+                })
+                .catch(err => {console.log(err)});        
+            } else {
+      
+            }
+          }).catch(() => {
+            console.log("error?");
+          });
+        }
+      });
+    } else {
+      socket.emit("pngHit", { x: data.xAxis, y: data.yAxis, size: data.size, pngData: pngs[`${data.xAxis},${data.yAxis}`] });
+    }
+
+    
 
   });
 

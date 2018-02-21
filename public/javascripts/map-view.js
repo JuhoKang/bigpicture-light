@@ -75,8 +75,8 @@ function navigateMap(x, y) {
 
 pngChunks = {};
 
-function fetchPng(x, y) {
-  socket.emit("getPng", { xAxis: x, yAxis: y });
+function fetchPng(x, y, size) {
+  socket.emit("getPng", { xAxis: x, yAxis: y , size: size});
 }
 
 socket.on("pngHit", (data) => {
@@ -99,8 +99,8 @@ function fetchMapPngs(x, y) {
   for(let i = x - CANVAS_SIZE; i <= x + CANVAS_SIZE; i += CANVAS_SIZE) {
     for(let j = x - CANVAS_SIZE; j <= x + CANVAS_SIZE; j += CANVAS_SIZE) {
       if (mapPngs[`${i},${j}`] !== true) {
-        console.log(`mapPNG checking : ${i},${j}`);
-        fetchPng(i, j);
+        //console.log(`mapPNG checking : ${i},${j}`);
+        fetchPng(i, j, 64);
         mapPngs[`${i},${j}`] = true;
       }
     }

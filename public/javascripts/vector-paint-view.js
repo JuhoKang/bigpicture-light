@@ -252,7 +252,7 @@ function fetchChunk(x, y) {
 }
 
 socket.on('mainChunkSend', (data) => {
-  // console.log('mainChunkSend');
+  console.log('mainChunkSend');
   // console.log(data);
   canvas.off('object:added');
   canvas.clear();
@@ -273,7 +273,7 @@ function fetchOtherChunkSocket(x, y) {
 
 socket.on('otherChunkSend', (data) => {
   const fc = document.createElement('canvas');
-  // console.log('otherChunkSend');
+  console.log('otherChunkSend');
   // console.log(data);
   const fetchCanvas = new fabric.Canvas(fc, { renderOnAddRemove: false });
   // console.log(`fetch from ${data.x},${data.y}`);
@@ -649,43 +649,7 @@ mapToggle.onclick = () => {
 
 window.addEventListener("resize", onResize);
 
-pngChunks = {};
 
-function fetchPng(x, y) {
-  socket.emit("getPng", { xAxis: x, yAxis: y });
-}
-
-
-
-socket.on("pngHit", (data) => {
-  console.log(data);
-  pngChunks[`${data.x},${data.y}`] = data.pngData;
-  const png = pngChunks[`${data.x},${data.y}`];
-  
-  fabric.Image.fromURL(`data:image/png;base64,${png}`, (oImg) => {
-    oImg.left += (data.x - startPoint.x)/64;
-    oImg.top += (data.y - startPoint .y)/64;
-    mapCanvas.add(oImg);
-  });
-  /*canvas.off("object:added");
-  if (png == null) {
-    //console.log("png null");
-    canvas.on("object:added", onObjectAdded);
-    changeInfoText("로딩 완료", "flash", "alert-success");
-  } else {
-    console.log("png not null");
-    fabric.Image.fromURL(png, (oImg) => {
-      console.log("adding");
-      console.log(oImg);
-      //oImg.left += data.x - startPoint.x;
-      //oImg.top += data.y - startPoint.y;
-      oImg.isNotMine = true;
-      //oImg.selectable = false;
-      canvas.add(oImg);
-      canvas.on("object:added", onObjectAdded);
-    });
-  }*/
-});
 
 function fillCanvasWithImage(x, y, pngData) {
   fabric.Image.fromURL(pngData, (oImg) => {
