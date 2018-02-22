@@ -3,12 +3,14 @@
   socket:true*/
 
 let name = "비회원";
+let imgPath = null;
 
+// on / off chatting room
 $("#chatting-btn").click(function(){
   if($(this).val()=="off"){
     $(this).val("on");
-    var fullWidth = window.innerWidth;
-    var w;
+    let fullWidth = window.innerWidth;
+    let w;
     if(fullWidth/3 > 300){
       w = fullWidth/3;
     }
@@ -28,6 +30,7 @@ $("#chatting-btn").click(function(){
   }
 });
 
+// i need to move somewhere below.
 $("#play").click(function() {
   if($("#nickname").val() !== ""){
     if($("#nickname").val().length > 8){
@@ -40,20 +43,68 @@ $("#play").click(function() {
   }
 });
 
-// send Message
-$("#msgbox").keyup((event) => {
-  if (event.keyCode == 13 && $("#msgbox").val() !== "") {
-    if($("#msgbox").val().length > 100){
-      alert("100글자 이내로 작성해 주세요.")
-      $("#msgbox").val("");
-      return;
-    }
-    sendMessage(name, $("#msgbox"));
-    showMessage($("#msgbox"));
-    $("#msgbox").val("");
+// click add button (img)
+$("#msgplus").click((event) => {
+  $("#msgimgfile").click();
+});
+
+// check image file
+$("#msgimgfile").on("change", function() {
+  let file = this.files[0];
+  let fileType = file["type"];
+  let validImageTypes = ["image/jpeg","image/png"];
+
+  if ($.inArray(fileType, validImageTypes) < 0) {
+    alert("jpeg,png 확장자의 파일만 가능합니다.");
+    return false;
   }
+  if(file.size>1048576) {
+    alert("파일 사이즈는 최대 1MB까지 가능합니다.");
+    return false;
+  }
+  let reader = new FileReader();
+  reader.onloadend = function() {
+    imgPath = reader.result;
+    $(".img-preview").show();
+    $(".img-preview").empty();
+    $(".img-preview").append(`<img src=${reader.result} class="chat-upload-img">`);
+  }
+  reader.readAsDataURL(file);
+})
+
+// push enter key or click enter button
+$("#msgbox").keyup((event) => {
+  if(event.keyCode == 13) messageEvent();
 });
 $("#msgenter").click((event) => {
+  messageEvent();
+});
+
+// recieve data from socket
+socket.on("toclient", function (data) {
+  messageCounter($(".chatting-count"));
+  appendMessageOnLeft(data);
+});
+
+// cleaning chatting room
+$(".all-chatting").click(function (event) {
+  $("#msgs").empty();
+});
+
+// functions
+
+function messageEvent() {
+  // send image data
+  if($("#msgimgfile").val()){
+    let usermsg = {
+      img : imgPath
+    };
+    sendMessage(name, usermsg);
+    appendMessageOnRight(usermsg);
+    $("#msgimgfile").val("");
+    imgPath = null;
+  }
+  // send string data
   if($("#msgbox").val() !== ""){
     if($("#msgbox").val().length > 100){
       alert("100글자 이내로 작성해 주세요.")
@@ -61,43 +112,60 @@ $("#msgenter").click((event) => {
       return;
     }
     sendMessage(name, $("#msgbox"));
-    showMessage($("#msgbox"));
+    appendMessageOnRight($("#msgbox"));
     $("#msgbox").val("");
   }
-});
+}
 
-// receiveMessage
-socket.on("toclient", function (data) {
-  chattingCounter($(".chatting-count"));
-  receiveMessage(data);
-});
-
-$(".all-chatting").click(function (event) {
-  $("#msgs").empty();
-});
-
-// function
+// send data to socket
+// username : user nickname
+// type : "image" or "string"
+// msg : image data or string data
 function sendMessage(username, usermsg) {
+  let type;
+  let msg;
+  if(usermsg.img){
+    type = "image";
+    msg = usermsg.img;
+    $(".img-preview").hide();
+  }else{
+    type = "string";
+    msg = usermsg.val();
+  }
   socket.emit("fromclient", {
     username: username,
-    msg: usermsg.val(),
+    type: type,
+    msg: msg,
   });
 }
 
-function receiveMessage(data) {
-  $("#msgs").append(`<li class="chattinglist"><span class="chattingbox">${data.from.name} : ${data.msg} </span></li>`);
+// recieve data from socket
+// data.from.name : user nickname
+// data.type : "image" or "string"
+// data.msg : image data or string data
+function appendMessageOnLeft(data) {
+  if(data.type == "image"){
+    $("#msgs").append(`<li class="chattinglist"><span class="chattingbox">${data.from.name} : <img src="${data.msg}" class="chat-upload-img"></img></span></li>`);
+  }else{
+    $("#msgs").append(`<li class="chattinglist"><span class="chattingbox">${data.from.name} : ${data.msg} </span></li>`);
+  }
   $("#msgcontainer").scrollTop($("#msgcontainer")[0].scrollHeight);
 }
 
-function showMessage(usermsg) {
-  let msg = usermsg.val();
-  $("#msgs").append(`<li class="my-chattinglist"><span class="chattingbox">${msg}</span></li>`);
+// usermsg : image path or string data
+function appendMessageOnRight(usermsg) {
+  if(usermsg.img){
+    $("#msgs").append(`<li class="my-chattinglist"><span class="chattingbox"><img src="${usermsg.img}" class="chat-upload-img"></img></span></li>`);
+  }else{
+    let msg = usermsg.val();
+    $("#msgs").append(`<li class="my-chattinglist"><span class="chattingbox">${msg}</span></li>`);
+  }
   $("#msgcontainer").scrollTop($("#msgcontainer")[0].scrollHeight);
 }
 
-function chattingCounter(e) {
-  var ct = parseInt(e.text());
-  var chattingContainer = $("#chatting-btn");
+function messageCounter(e) {
+  let ct = parseInt(e.text());
+  let chattingContainer = $("#chatting-btn");
   if(chattingContainer.val() == "off"){
     if(ct>99){
       e.text("99+");
