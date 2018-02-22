@@ -11,7 +11,6 @@ const session = require("express-session");
 // routers
 const index = require("../routes/index");
 const api = require("../routes/api");
-const chatImageUploader = require("../utils/chatImageUploader");
 
 module.exports = function (app) {
   // static paths
@@ -36,7 +35,6 @@ module.exports = function (app) {
   // routers
   app.use("/", index);
   app.use("/api/", api);
-  app.use("/chatImageUploader", chatImageUploader);
 
   // catch 404 and forward to error handler
   app.use((req, res, next) => {

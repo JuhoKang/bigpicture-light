@@ -62,16 +62,14 @@ $("#msgimgfile").on("change", function() {
     alert("파일 사이즈는 최대 1MB까지 가능합니다.");
     return false;
   }
-  let xhr = new XMLHttpRequest();
-  let formData = new FormData();
-  formData.append("image", file);
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState == XMLHttpRequest.DONE) {
-        imgPath = xhr.responseText;
-    }
+  let reader = new FileReader();
+  reader.onloadend = function() {
+    imgPath = reader.result;
+    $(".img-preview").show();
+    $(".img-preview").empty();
+    $(".img-preview").append(`<img src=${reader.result} class="chat-upload-img">`);
   }
-  xhr.open("POST", "/chatImageUploader/");
-  xhr.send(formData);
+  reader.readAsDataURL(file);
 })
 
 // push enter key or click enter button
@@ -104,6 +102,7 @@ function messageEvent() {
     sendMessage(name, usermsg);
     appendMessageOnRight(usermsg);
     $("#msgimgfile").val("");
+    imgPath = null;
   }
   // send string data
   if($("#msgbox").val() !== ""){
@@ -128,6 +127,7 @@ function sendMessage(username, usermsg) {
   if(usermsg.img){
     type = "image";
     msg = usermsg.img;
+    $(".img-preview").hide();
   }else{
     type = "string";
     msg = usermsg.val();
@@ -145,8 +145,7 @@ function sendMessage(username, usermsg) {
 // data.msg : image data or string data
 function appendMessageOnLeft(data) {
   if(data.type == "image"){
-    // in progress!!!!!!!!!!
-    $("#msgs").append(`<li class="chattinglist"><img src="file:///"+${data.msg}></li>`);
+    $("#msgs").append(`<li class="chattinglist"><span class="chattingbox">${data.from.name} : <img src="${data.msg}" class="chat-upload-img"></img></span></li>`);
   }else{
     $("#msgs").append(`<li class="chattinglist"><span class="chattingbox">${data.from.name} : ${data.msg} </span></li>`);
   }
@@ -156,8 +155,7 @@ function appendMessageOnLeft(data) {
 // usermsg : image path or string data
 function appendMessageOnRight(usermsg) {
   if(usermsg.img){
-    // in progress!!!!!!!!!!
-    $("#msgs").append(`<li class="my-chattinglist"><img src="file:///"+${usermsg.img}></li>`);
+    $("#msgs").append(`<li class="my-chattinglist"><span class="chattingbox"><img src="${usermsg.img}" class="chat-upload-img"></img></span></li>`);
   }else{
     let msg = usermsg.val();
     $("#msgs").append(`<li class="my-chattinglist"><span class="chattingbox">${msg}</span></li>`);
