@@ -45,6 +45,8 @@ $("#play").click(function() {
 
 // click add button (img)
 $("#msgplus").click((event) => {
+  $(".img-preview").hide();
+  $(".img-preview").empty();
   $("#msgimgfile").click();
 });
 
@@ -56,10 +58,12 @@ $("#msgimgfile").on("change", function() {
 
   if ($.inArray(fileType, validImageTypes) < 0) {
     alert("jpeg,png 확장자의 파일만 가능합니다.");
+    $("#msgimgfile").val("");
     return false;
   }
-  if(file.size>1048576) {
-    alert("파일 사이즈는 최대 1MB까지 가능합니다.");
+  if(file.size>10485760) {
+    alert("파일 사이즈는 최대 10MB까지 가능합니다.");
+    $("#msgimgfile").val("");
     return false;
   }
   let reader = new FileReader();
