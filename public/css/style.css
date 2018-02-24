@@ -174,3 +174,22 @@ canvas {
   height: 33px;
   text-align: center;
 }
+
+.huebee {
+  z-index: 1000;
+}
+
+.noUi-horizontal .noUi-handle{
+  border-radius: 100%;
+  width: 19px;
+  height: 19px;
+  left: -12px;
+  top: -4px;
+}
+.noUi-horizontal .noUi-handle::before, .noUi-horizontal .noUi-handle::after{
+  display: none;
+}
+.noUi-horizontal {
+  height: 12px;
+}
+

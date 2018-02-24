@@ -4,16 +4,16 @@ block content
 		.col-lg-12.col-md-12.col-sm-12.col-12
 			//desktop tooltips
 			.row
+				div.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark.color-picker-btn
+					input.color-input(value="#000000" title="Color Picker")
+				div.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark#remote-control-btn.pt-2
+					.btn-block#drawing-line-width(title="Drawing Line Width")
 				button.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark.white-space-nowrap#changeMode(onclick="changeModeToNavigatingMode()" title="Drag Mode")
 					span.fa.fa-mouse-pointer
 					|  (S)
 				button.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark.white-space-nowrap#pencilStyle(onclick="changeModeToDrawingMode()" title="Draw Mode")
 					span.fa.fa-paint-brush
 					|  (D)
-				div.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark.color-picker-btn
-					input.color-input(value="#000000" title="Color Picker")
-				div.col-lg-1.col-md-1.col-sm-3.col-3.btn-xs.btn-dark#remote-control-btn(style="padding-top:5px")
-					.btn-block#drawing-line-width(title="Drawing Line Width")
 				button.col-lg-1.col-md-2.col-sm-3.col-6.btn-md.btn-dark.white-space-nowrap#undo-button(onclick="undo()" title="Undo")
 					span.fa.fa-undo
 					|  (Ctrl+Z)
