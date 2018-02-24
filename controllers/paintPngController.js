@@ -7,7 +7,7 @@ exports.paintpng_save = (xAxis, yAxis, size, base64) => {
       x_axis: xAxis,
       y_axis: yAxis,
       size: size,
-      base64: base64,
+      b64_png: base64,
     });
     debug(freshPaintPng);
     debug(`came here but ${xAxis}, ${yAxis}, ${size}, ${base64}`);
@@ -15,7 +15,7 @@ exports.paintpng_save = (xAxis, yAxis, size, base64) => {
       x_axis: xAxis,
       y_axis: yAxis,
       size: size,
-    }, { base64: base64 }, {upsert:true}).exec().then((foundCell) => {
+    }, { b64_png: base64 }, {upsert:true}).exec().then((foundCell) => {
       debug("done something");
       if (foundCell === null) {
         debug("not found")

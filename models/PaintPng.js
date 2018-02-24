@@ -6,7 +6,7 @@ const PaintPngSchema = new Schema({
   x_axis: Number,
   y_axis: Number,
   size: Number,
-  base64: String,
+  b64_png: String,
 }, { timestamps: true });
 
 PaintPngSchema

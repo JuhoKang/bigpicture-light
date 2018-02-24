@@ -40,8 +40,10 @@ module.exports = function (server) {
     debug(`update routine fired ${x},${y} : routineHealth is : ${routineHealth[`${x},${y}`]}`);
     const target = chunks[`${x},${y}`];
     if (target != null) {
-      pngConvertModule.send({ dataUrl: target.toDataURL({ width: CANVAS_SIZE, height: CANVAS_SIZE }), x: x, y: y, size: 64 });
+      pngConvertModule.send({x: x, y: y, size: 64 });
+      debug(`update routine done dataUrl${x},${y}`);
       chunkSaveModule.send({target: chunks[`${x},${y}`],x, y});
+      debug(`update routine done targetchunk sending ${x},${y}`);
       if (routineHealth[`${x},${y}`] <= 0) {
         clearInterval(routineInterval[`${x},${y}`]);
         chunks[`${x},${y}`] = null;
@@ -54,6 +56,7 @@ module.exports = function (server) {
       chunks[`${x},${y}`] = null;
       routineInterval[`${x},${y}`] = null;
     }
+    debug(`update routine done ${x},${y}`);
   }
 
 
@@ -185,7 +188,9 @@ module.exports = function (server) {
         }, CHUNK_UPDATE_MILLSEC_TIME);
         chunkInterval[`${data.x},${data.y}`] = interval;
         */
+        debug(`hi befor init ${data.x},${data.y}`);
         initChunk(data.x, data.y).then((chunk) => {
+          debug(`hi after init ${data.x},${data.y}`);
           if (data.isMain) {
             console.log
             socket.emit("mainChunkSend", { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });

@@ -68,14 +68,7 @@ exports.paintchunk_save = (xAxis, yAxis, data) => {
     PaintChunk.findOneAndUpdate({
       x_axis: xAxis,
       y_axis: yAxis,
-    }, { data: data }, {upsert:true}).exec().then((something) => {
-      debug("then");
-      debug(something);
-    }).catch((something)=> {
-      debug("catch");
-      debug(something);
-    });
-    /*}, { data: data }, {upsert:true}).exec().then((foundCell) => {
+    }, { data: data }, {upsert:true}).exec().then((foundCell) => {
       if (foundCell === null) {
         freshPaintChunk.save(function (err) {
           if (err) {
@@ -97,7 +90,7 @@ exports.paintchunk_save = (xAxis, yAxis, data) => {
       debug(`findOne err : ${err}`);
       reject("findOne err3");
       return null;
-    });*/
+    });
   });
 };
 
