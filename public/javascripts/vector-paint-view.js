@@ -97,7 +97,15 @@ lineWidthSlider.noUiSlider.on('change', (e) => {
   //updatePreview();
 });
 lineWidthSlider.noUiSlider.on('update', (e) => {
-  updatePreviewWidth(parseInt(e, 10) || 1);
+  let size = parseInt(e, 10)
+  updatePreviewWidth(size || 1);
+
+  $(".noUi-horizontal .noUi-handle").css({
+      width : size/6+18 || 1,
+      height : size/6+18 || 1,
+      top : (size/6+18)/4*-1 || -4
+    });
+
   console.log("uislider update");
 });
 //---------------- draw line width slider ----- end
