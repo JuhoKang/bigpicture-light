@@ -174,3 +174,7 @@ canvas {
   height: 33px;
   text-align: center;
 }
+
+.huebee {
+  z-index: 1000;
+}
