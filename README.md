@@ -16,12 +16,12 @@ Consumer demand for contents are increasing. Traditionaly text, video, image sha
 
 ## Features
 * Real-time drawing
-* Free space to draw on (4096x4096x32 of space with no zoom 1:1)
-* Free zoom in, out. drawing based on vector image
+* Free virtual space to draw on everywhere, anywhere
+* Free (has limits for optimal performance) zoom in, out. drawing based on vector image
 * Undo what you draw in real time
-* Simple chatting with other people based on user coordinates
+* Simple chatting with other people based on user present coordinates
 * Simple brush change settings
-* Simple map to show where you are
+* Simple, intuitive map to show where you are
 
 ## Installation and Settings
 
