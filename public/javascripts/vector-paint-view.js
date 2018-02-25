@@ -93,7 +93,7 @@ noUiSlider.create(lineWidthSlider, {
 
 lineWidthSlider.noUiSlider.on('change', (e) => {
   canvas.freeDrawingBrush.width = parseInt(e, 10) || 1;
-  console.log("change");
+  //console.log("change");
   //updatePreview();
 });
 lineWidthSlider.noUiSlider.on('update', (e) => {
@@ -260,7 +260,7 @@ function fetchChunk(x, y) {
 }
 
 socket.on('mainChunkSend', (data) => {
-  // console.log('mainChunkSend');
+  //console.log('mainChunkSend');
   // console.log(data);
   canvas.off('object:added');
   canvas.clear();
@@ -281,7 +281,7 @@ function fetchOtherChunkSocket(x, y) {
 
 socket.on('otherChunkSend', (data) => {
   const fc = document.createElement('canvas');
-  // console.log('otherChunkSend');
+  //console.log('otherChunkSend');
   // console.log(data);
   const fetchCanvas = new fabric.Canvas(fc, { renderOnAddRemove: false });
   // console.log(`fetch from ${data.x},${data.y}`);
@@ -329,17 +329,11 @@ function leaveRoom(x, y) {
   socket.emit('leaveRoom', { x, y });
 }
 
-function init() {
-  selectStartChunk();
-  fetchChunk(chunk.x, chunk.y);
-  // console.log(`startpoint : ${startPoint.x},${startPoint.y}`);
-  joinRoom(chunk.x, chunk.y);
-  onResize();
-  $('#init-modal').modal({ backdrop: 'static', keyboard: false });
-}
+const randomPanX = getRandomIntInclusive(-500, -1500);
+const randomPanY = getRandomIntInclusive(-500, -1500);
 
 function panToRandom(){
-  canvas.relativePan(new fabric.Point(getRandomIntInclusive(-500, -1500), getRandomIntInclusive(-500, -1500)));
+  canvas.relativePan(new fabric.Point(randomPanX, randomPanY));
 }
 
 let starttime;
@@ -458,6 +452,7 @@ function userNavMove(e) {
     const x = e.screenX;
     const y = e.screenY;
     canvas.relativePan(new fabric.Point(x - beforePoint.x, y - beforePoint.y));
+    navigateMap(x, y);
     updateCanvasMove();
     beforePoint.x = x;
     beforePoint.y = y;
@@ -566,10 +561,11 @@ function updateCanvasMove() {
     for (let j = getLTC(vptc.tl.y) + startPoint.y; j <= getLTC(vptc.br.y) + startPoint.y; j += CANVAS_SIZE) {
       //console.log(`checking : ${i},${j}`);
       if (currentChunks[`${i},${j}`] !== true) {
-        console.log(`adding : ${i},${j}`);
+        //console.log(`adding : ${i},${j}`);
         //if(canvas.getZoom() > 2) {
         //fetchPng(i, j);
         //} else {
+        fetchMapPngs(i, j);
         fetchChunkFromOther(i, j);
         //}
         currentChunks[`${i},${j}`] = true;
@@ -664,35 +660,7 @@ mapToggle.onclick = () => {
 
 window.addEventListener("resize", onResize);
 
-pngChunks = {};
 
-function fetchPng(x, y) {
-  socket.emit("getPng", { xAxis: x, yAxis: y });
-}
-
-socket.on("pngHit", (data) => {
-  console.log("pngHit");
-  pngChunks[`${data.x},${data.y}`] = data.pngData;
-  const png = pngChunks[`${data.x},${data.y}`];
-  canvas.off("object:added");
-  if (png == null) {
-    //console.log("png null");
-    canvas.on("object:added", onObjectAdded);
-    changeInfoText("로딩 완료", "flash", "alert-success");
-  } else {
-    console.log("png not null");
-    fabric.Image.fromURL(png, (oImg) => {
-      console.log("adding");
-      console.log(oImg);
-      oImg.left += data.x - startPoint.x;
-      oImg.top += data.y - startPoint.y;
-      oImg.isNotMine = true;
-      oImg.selectable = false;
-      canvas.add(oImg);
-      canvas.on("object:added", onObjectAdded);
-    });
-  }
-});
 
 function fillCanvasWithImage(x, y, pngData) {
   fabric.Image.fromURL(pngData, (oImg) => {
@@ -711,6 +679,15 @@ function selectStartChunk() {
   startPoint.x = chunk.x;
   chunk.y = getRandomIntInclusive(POPULAR_CHUNK_COORD_START , POPULAR_CHUNK_COORD_STOP) * CANVAS_SIZE;
   startPoint.y = chunk.y;
+}
+
+function init() {
+  selectStartChunk();
+  fetchChunk(chunk.x, chunk.y);
+  // console.log(`startpoint : ${startPoint.x},${startPoint.y}`);
+  joinRoom(chunk.x, chunk.y);
+  onResize();
+  $('#init-modal').modal({ backdrop: 'static', keyboard: false });
 }
 
 init();
