@@ -40,7 +40,11 @@ Consumer demand for contents are increasing. Traditionaly text, video, image sha
 you need cairo for node-canvas dependency
 
     $ sudo apt-get update 
-    $ sudo apt-get install libcairo2-dev libjpeg-dev libpango1.0-dev libgif-dev build-essential g++
+    $ sudo apt-get install libcairo2-dev libjpeg-dev libpango1.0-dev libgif-dev build-essential g++ 
+    
+you need zlib1g-dev for sharp dependency
+###### always import sharp before fabric.
+    $ sudo apt-get install zlib1g-dev
     
 ## Third Party Libraries
 
