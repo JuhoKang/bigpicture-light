@@ -5,7 +5,6 @@ const PaintChunk = require("../models/PaintChunk");
 const PaintPng = require("../models/PaintPng");
 const paintPngController = require("../controllers/paintPngController");
 const mongoose = require("mongoose");
-//const pngs = {};
 const mongoDB = "mongodb://127.0.0.1:27017/bigpicture";
 
 const CANVAS_SIZE = 4096;
@@ -14,7 +13,6 @@ mongoose.connect(mongoDB);
 
 
 function updatePng(x, y, size) {
-  //const png = target.toDataURL({ width: CANVAS_SIZE, height: CANVAS_SIZE });
   debug(`came in updatepng ${x},${y}`);
 
   PaintChunk.findOne({

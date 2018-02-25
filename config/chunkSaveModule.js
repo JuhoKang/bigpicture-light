@@ -13,7 +13,6 @@ mongoose.connect(mongoDB);
 function updateChunk(target, x, y) {
   debug(`update chunk inside module ${x},${y}`);
   if (target != null) {
-    //pngConvertModule.send({ dataUrl: target.toDataURL({ width: CANVAS_SIZE, height: CANVAS_SIZE }), x: x, y: y, size: 64 });
     paintChunkController.paintchunk_save(x, y, JSON.stringify(target)).then((result) => {
       debug(`done update chunk ${x},${y}`);
     });

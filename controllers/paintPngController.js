@@ -39,12 +39,7 @@ exports.paintpng_save = (xAxis, yAxis, size, base64) => {
         resolve(foundCell);
         return foundCell;
       }
-    }
-    /*, (err) => {
-      debug(`findOne err : ${err}`);
-      reject("findOne err3");
-      return null;}*/
-    ).catch((reject)=> {
+    }).catch((reject)=> {
       debug("reject");
       debug(reject);
     });

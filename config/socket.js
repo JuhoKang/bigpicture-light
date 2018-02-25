@@ -28,13 +28,11 @@ module.exports = function (server) {
     return Math.floor(Math.random() * (max - min + 1)) + min; //The maximum is inclusive and the minimum is inclusive 
   }
 
-
   //getRandomAppropriateIntervalTime
   //get a interval time to avoid too many same intervals.
   function getRait() {
     return getRandomIntInclusive(30, 50) * 1000;
   }
-
 
   function updateRoutine(x, y) {
     debug(`update routine fired ${x},${y} : routineHealth is : ${routineHealth[`${x},${y}`]}`);
@@ -59,12 +57,11 @@ module.exports = function (server) {
     debug(`update routine done ${x},${y}`);
   }
 
-
-
   function updatePng(target, x, y, size) {
     if (target != null) {
       const png = target.toDataURL({ width: CANVAS_SIZE, height: CANVAS_SIZE });
       debug("came in updatepng");
+      //png has a start with data:image/png;base64, (substring to delete this)
       const modPng = png.substring(22, png.length);
       //console.log(modPng);
       sharp(new Buffer(modPng, "base64"))
@@ -128,15 +125,6 @@ module.exports = function (server) {
           debug(err);
         });
 
-
-        //initialize chunkHealth when initilizing chunk
-        /*chunkHealth[`${x},${y}`] = MAX_CHUNK_HEALTH;
-        if (chunkInterval[`${x},${y}`] == null) {
-          const interval = setInterval(() => {
-            updateChunk(x, y);
-          }, CHUNK_UPDATE_MILLSEC_TIME);
-          chunkInterval[`${x},${y}`] = interval;
-        }*/
         routineHealth[`${x},${y}`] = MAX_CHUNK_HEALTH;
         if (routineInterval[`${x},${y}`] == null) {
           const interval = setInterval(() => {
@@ -156,41 +144,7 @@ module.exports = function (server) {
     socket.on("getChunkData", (data) => {
       //no chunk hit on memory
       if (chunks[`${data.x},${data.y}`] == null) {
-        /*
-        chunks[`${data.x},${data.y}`] = fabric.createCanvasForNode(CANVAS_SIZE, CANVAS_SIZE);
-        //get data from database
-        PaintChunk.findOne({
-          x_axis: data.x,
-          y_axis: data.y,
-        }).exec().then((chunk) => {
-          // if nothing exists a cell with null data returns.
-          if (chunk != null) {
-            chunks[`${data.x},${data.y}`].loadFromJSON(chunk.data);
-            if (data.isMain) {
-              console.log('send');
-              socket.emit("mainChunkSend", { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
-            } else {
-              socket.emit("otherChunkSend", { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
-            }
-          } else {
-            //no chunk data from database
-            //console.log('chunk is null');
-          }
-        }, (err) => {
-          // need better error handling
-          debug(err);
-        });
-  
-        //initialize chunkHealth when initilizing chunk
-        chunkHealth[`${data.x},${data.y}`] = MAX_CHUNK_HEALTH;
-        const interval = setInterval(() => {
-          updateChunk(data.x, data.y);
-        }, CHUNK_UPDATE_MILLSEC_TIME);
-        chunkInterval[`${data.x},${data.y}`] = interval;
-        */
-        debug(`hi befor init ${data.x},${data.y}`);
         initChunk(data.x, data.y).then((chunk) => {
-          debug(`hi after init ${data.x},${data.y}`);
           if (data.isMain) {
             socket.emit("mainChunkSend", { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
           } else {
@@ -287,7 +241,6 @@ module.exports = function (server) {
 
     socket.on("getPng", (data) => {
 
-      /*if (pngs[`${data.xAxis},${data.yAxis}`] == null) {*/
       PaintPng.findOne({
         x_axis: data.xAxis,
         y_axis: data.yAxis,
@@ -298,10 +251,7 @@ module.exports = function (server) {
           socket.emit("pngHit", { x: data.xAxis, y: data.yAxis, size: data.size, pngData: png.b64_png });
         }
       }).catch((reject) => {
-        /*  });
-        } else {
-          socket.emit("pngHit", { x: data.xAxis, y: data.yAxis, size: data.size, pngData: pngs[`${data.xAxis},${data.yAxis}`] });
-        }*/
+
       });
     });
 
@@ -335,7 +285,6 @@ module.exports = function (server) {
     });
 
     socket.on("sendPing", (ping) => {
-      //debug("ping!");
       //debug(ping);
       socket.broadcast.emit("receivePing", ping);
     });
