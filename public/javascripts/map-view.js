@@ -9,27 +9,6 @@ const mapCanvas = new fabric.StaticCanvas("map", {
   isDrawingMode: false,
 });
 
-//prevent canvas.renderAll getting called more than browser framerate.
-const render = mapCanvas.renderAll.bind(mapCanvas);
-const stop = () => isAnimating = false;
-const play = () => {
-  isAnimating = true;
-  mapCanvas.renderAll();
-};
-
-mapCanvas.renderAll = () => {
-  if (!isRendering) {
-    isRendering = true;
-    requestAnimationFrame(() => {
-      render();
-      isRendering = false;
-      if (isAnimating) {
-        mapCanvas.renderAll();
-      }
-    });
-  }
-};
-
 var Cross = fabric.util.createClass(fabric.Object, {
   objectCaching: false,
   initialize: function (options) {
