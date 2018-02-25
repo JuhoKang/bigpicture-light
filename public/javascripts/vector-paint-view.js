@@ -232,6 +232,7 @@ const onObjectAdded = (e) => {
       data: clonedObj,
       uid: guid,
     };
+    sendPing(startPoint.x + e.target.aCoords.tl.x, startPoint.y + e.target.aCoords.tl.y, "draw");
     socket.emit('drawToChunk', envelope);
   } else {
     // console.log('object added from other');
@@ -769,6 +770,12 @@ $(document).on("click", ".marker-btn", function(e){
 $(document).on("click","#marker-remove-btn",function(e){
   $(e.target).parent().remove();
 });
+
+function sendPing(x, y, type) {
+  //curPos
+  socket.emit("sendPing", {x, y, nickName: name, type: type});
+}
+
 
 //not used
 // function zoomByMouseCoords(e, isZoomIn) {

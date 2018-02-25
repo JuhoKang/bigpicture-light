@@ -92,6 +92,55 @@ socket.on("pngHit", (data) => {
   });
 });
 
+socket.on("receivePing", (ping) => {
+  if(isInsideMap(ping.x, ping.y)) {
+    createPingAnimation((ping.x - startPoint.x - mapCanvas.vptCoords.tl.x) / 64, (ping.y - startPoint.y - mapCanvas.vptCoords.tl.y) / 64, ping.type);
+  }
+  //console.log(ping);
+});
+
+function isInsideMap(x, y) {
+
+  if (startPoint.x + (mapCanvas.vptCoords.tl.x) * 64 < x && x < startPoint.x + (mapCanvas.vptCoords.tr.x * 64) &&
+    startPoint.y + (mapCanvas.vptCoords.tl.y) * 64 < y && y < startPoint.y + (mapCanvas.vptCoords.bl.y) * 64) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+const DRAW_FILL_CENTER = "#F44336";
+const DRAW_FILL_WAVE = "#FFCDD2";
+const CHAT_FILL_CENTER = "#FFEB3B";
+const CHAT_FILL_WAVE = "#FFF9C4";
+const DEFAULT_FILL_CENTER = "#2196F3";
+const DEFAULT_FILL_WAVE = "#BBDEFB";
+
+function createPingAnimation(x, y, type) {
+  let innerCircle;
+  let outerCircle;
+  if (type == "draw") {
+    innerCircle = new fabric.Circle({ radius: 5, fill: DRAW_FILL_CENTER, left: x, top: y, originX: "center", originY: "center" });
+    outerCircle = new fabric.Circle({ radius: 5, fill: DRAW_FILL_WAVE, left: x, top: y, originX: "center", originY: "center" });
+  } else if (type == "chat") {
+    innerCircle = new fabric.Circle({ radius: 5, fill: CHAT_FILL_CENTER, left: x, top: y, originX: "center", originY: "center" });
+    outerCircle = new fabric.Circle({ radius: 5, fill: CHAT_FILL_WAVE, left: x, top: y, originX: "center", originY: "center" });
+  } else {
+    innerCircle = new fabric.Circle({ radius: 5, fill: DEFAULT_FILL_CENTER, left: x, top: y, originX: "center", originY: "center" });
+    outerCircle = new fabric.Circle({ radius: 5, fill: DEFAULT_FILL_WAVE, left: x, top: y, originX: "center", originY: "center" });
+  }
+
+  outerCircle.centeredScaling = true;
+  mapCanvas.add(outerCircle);
+  outerCircle.animate('radius', 15, {
+    onChange: mapCanvas.renderAll.bind(mapCanvas),
+    duration: 1000,
+  });
+  mapCanvas.add(innerCircle);
+  setTimeout(function () { mapCanvas.fxRemove(innerCircle) }, 1200);
+  setTimeout(function () { mapCanvas.fxRemove(outerCircle) }, 1200);
+}
+
 mapPngs = {};
 
 function fetchMapPngs(x, y) {
@@ -110,14 +159,18 @@ function fetchMapPngs(x, y) {
 function reflectZoomOnMap() {
   zoomText.setText(`[${canvas.getZoom().toFixed(2)}]`);
 }
+
+
 const cross = new Cross({ top: 54, left: 54 });
 const coordText = new fabric.Text(`(${chunk.x / 4096},${chunk.y / 4096})`, { top: 75, left: 75 + 10, fontSize: 10 });
 const zoomText = new fabric.Text(`[${canvas.getZoom().toFixed(2)}]`, { top: 85, left: 75 + 10, fontSize: 10 });
 const group = new fabric.Group([cross, coordText, zoomText]);
+
+
 function mapInit() {
   fetchMapPngs(chunk.x, chunk.y);
   mapCanvas.relativePan(new fabric.Point(64 + (randomPanX / (canvas.getZoom() * 64)), 64 + (randomPanY / (canvas.getZoom() * 64))));
-  
+
   mapCanvas.add(group);
   mapCanvas.setBackgroundColor("rgba(255,255,255,1)", mapCanvas.renderAll.bind(mapCanvas));
   group.set("left", mapCanvas.vptCoords.tl.x + 54);
