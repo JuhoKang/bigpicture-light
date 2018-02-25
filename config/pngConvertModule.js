@@ -39,7 +39,7 @@ function updatePng(x, y, size) {
               debug(`done update png ${x},${y}`)
             });
             //pngs[`${x},${y}`] = result.toString("base64");
-          }).catch(err => { console.log(err) });
+          }).catch(err => { debug(err) });
       });
     } else {
       debug("null chunk");

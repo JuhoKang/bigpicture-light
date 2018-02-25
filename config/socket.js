@@ -32,7 +32,7 @@ module.exports = function (server) {
   //getRandomAppropriateIntervalTime
   //get a interval time to avoid too many same intervals.
   function getRait() {
-    return getRandomIntInclusive(30,50) * 1000;
+    return getRandomIntInclusive(30, 50) * 1000;
   }
 
 
@@ -40,9 +40,9 @@ module.exports = function (server) {
     debug(`update routine fired ${x},${y} : routineHealth is : ${routineHealth[`${x},${y}`]}`);
     const target = chunks[`${x},${y}`];
     if (target != null) {
-      pngConvertModule.send({x: x, y: y, size: 64 });
+      pngConvertModule.send({ x: x, y: y, size: 64 });
       debug(`update routine done dataUrl${x},${y}`);
-      chunkSaveModule.send({target: chunks[`${x},${y}`],x, y});
+      chunkSaveModule.send({ target: chunks[`${x},${y}`], x, y });
       debug(`update routine done targetchunk sending ${x},${y}`);
       if (routineHealth[`${x},${y}`] <= 0) {
         clearInterval(routineInterval[`${x},${y}`]);
@@ -71,10 +71,10 @@ module.exports = function (server) {
         .resize(size, size)
         .toBuffer()
         .then(result => {
-          console.log(`png update done ${x},${y}`)
+          debug(`png update done ${x},${y}`)
           paintPngController.paintpng_save(x, y, size, pngs[`${x},${y}`]);
           pngs[`${x},${y}`] = result.toString("base64");
-        }).catch(err => { console.log(err) });
+        }).catch(err => { debug(err) });
     }
   }
 
@@ -122,7 +122,7 @@ module.exports = function (server) {
             //console.log("chunk is null");
           }
         }, (err) => {
-          console.log(err);
+          debug(err);
           reject(err);
           // need better error handling
           debug(err);
@@ -192,7 +192,6 @@ module.exports = function (server) {
         initChunk(data.x, data.y).then((chunk) => {
           debug(`hi after init ${data.x},${data.y}`);
           if (data.isMain) {
-            console.log
             socket.emit("mainChunkSend", { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
           } else {
             socket.emit("otherChunkSend", { x: data.x, y: data.y, json: JSON.stringify(chunks[`${data.x},${data.y}`]) });
@@ -274,37 +273,40 @@ module.exports = function (server) {
     });
 
     socket.on("removeObject", (data) => {
-      let chunkObjects = chunks[`${data.xAxis},${data.yAxis}`].getObjects();
-      for (let i = chunkObjects.length - 1; i > -1; i--) {
-        if (chunkObjects[i].owner === data.uid) {
-          chunks[`${data.xAxis},${data.yAxis}`].remove(chunkObjects[i]);
-          socket.broadcast.to(`chunk_room:${data.xAxis},${data.yAxis}`).emit("undoFromOther", data.uid);
-          break;
+      if (chunks[`${data.xAxis},${data.yAxis}`] != null) {
+        let chunkObjects = chunks[`${data.xAxis},${data.yAxis}`].getObjects();
+        for (let i = chunkObjects.length - 1; i > -1; i--) {
+          if (chunkObjects[i].owner === data.uid) {
+            chunks[`${data.xAxis},${data.yAxis}`].remove(chunkObjects[i]);
+            socket.broadcast.to(`chunk_room:${data.xAxis},${data.yAxis}`).emit("undoFromOther", data.uid);
+            break;
+          }
         }
       }
     });
 
     socket.on("getPng", (data) => {
 
-      if (pngs[`${data.xAxis},${data.yAxis}`] == null) {
-        PaintPng.findOne({
-          x_axis: data.xAxis,
-          y_axis: data.yAxis,
-          size: data.size,
-        }).exec().then((png) => {
-          if (png != null) {
-            pngs[`${data.xAxis},${data.yAxis}`] = png.base64;
-            socket.emit("pngHit", { x: data.xAxis, y: data.yAxis, size: data.size, pngData: result.toString("base64") });
-          }
-        }).catch((reject) => {
+      /*if (pngs[`${data.xAxis},${data.yAxis}`] == null) {*/
+      PaintPng.findOne({
+        x_axis: data.xAxis,
+        y_axis: data.yAxis,
+        size: data.size,
+      }).exec().then((png) => {
+        if (png != null) {
+          pngs[`${data.xAxis},${data.yAxis}`] = png.b64_png;
+          socket.emit("pngHit", { x: data.xAxis, y: data.yAxis, size: data.size, pngData: png.b64_png });
+        }
+      }).catch((reject) => {
 
-        });
-      } else {
-        socket.emit("pngHit", { x: data.xAxis, y: data.yAxis, size: data.size, pngData: pngs[`${data.xAxis},${data.yAxis}`] });
-      }
+        /*  });
+        } else {
+          socket.emit("pngHit", { x: data.xAxis, y: data.yAxis, size: data.size, pngData: pngs[`${data.xAxis},${data.yAxis}`] });
+        }*/
 
 
 
+      });
     });
 
     socket.on("leaveRoom", (data) => {

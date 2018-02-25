@@ -93,12 +93,12 @@ noUiSlider.create(lineWidthSlider, {
 
 lineWidthSlider.noUiSlider.on('change', (e) => {
   canvas.freeDrawingBrush.width = parseInt(e, 10) || 1;
-  console.log("change");
+  //console.log("change");
   //updatePreview();
 });
 lineWidthSlider.noUiSlider.on('update', (e) => {
   updatePreviewWidth(parseInt(e, 10) || 1);
-  console.log("uislider update");
+  //console.log("uislider update");
 });
 //---------------- draw line width slider ----- end
 
@@ -252,7 +252,7 @@ function fetchChunk(x, y) {
 }
 
 socket.on('mainChunkSend', (data) => {
-  console.log('mainChunkSend');
+  //console.log('mainChunkSend');
   // console.log(data);
   canvas.off('object:added');
   canvas.clear();
@@ -273,7 +273,7 @@ function fetchOtherChunkSocket(x, y) {
 
 socket.on('otherChunkSend', (data) => {
   const fc = document.createElement('canvas');
-  console.log('otherChunkSend');
+  //console.log('otherChunkSend');
   // console.log(data);
   const fetchCanvas = new fabric.Canvas(fc, { renderOnAddRemove: false });
   // console.log(`fetch from ${data.x},${data.y}`);
@@ -321,8 +321,11 @@ function leaveRoom(x, y) {
   socket.emit('leaveRoom', { x, y });
 }
 
+const randomPanX = getRandomIntInclusive(-500, -1500);
+const randomPanY = getRandomIntInclusive(-500, -1500);
+
 function panToRandom(){
-  canvas.relativePan(new fabric.Point(getRandomIntInclusive(-500, -1500), getRandomIntInclusive(-500, -1500)));
+  canvas.relativePan(new fabric.Point(randomPanX, randomPanY));
 }
 
 let starttime;
