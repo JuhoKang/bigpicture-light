@@ -18,14 +18,21 @@ const canvas = new fabric.Canvas('c', {
 //make the canvas objects unselectable
 canvas.selection = false;
 
+//not sure this is important. need to be checked
+fabric.Object.prototype.transparentCorners = false;
+
 const CANVAS_SIZE = 4096;
 const DRAWABLE_ZOOM_LIMIT = 0.5;
 const POPULAR_CHUNK_COORD_START = 10;
 const POPULAR_CHUNK_COORD_STOP = 10;
 
+const DEFAULT_BRUSH_COLOR = "#000000";
+
 let isRendering = false;
 let isAnimating = false;
 
+
+//prevent canvas.renderAll getting called more than browser framerate.
 const render = canvas.renderAll.bind(canvas);
 const stop = () => isAnimating = false;
 const play = () => {
@@ -46,11 +53,16 @@ canvas.renderAll = () => {
   }
 };
 
+//the startPoint and chunk differs because 
+//the virtual coords are related with the first initialization 
+
+//currently positioned chunk.
 let chunk = {
   x: CANVAS_SIZE * 10,
   y: CANVAS_SIZE * 10,
 };
 
+//starting point of user. initialized at init()
 let startPoint = {
   x: CANVAS_SIZE * 10,
   y: CANVAS_SIZE * 10,
@@ -59,6 +71,7 @@ let startPoint = {
 var currentChunks = {};
 
 // get Left Top Coordinate
+// the LTC is the base of each chunks.
 function getLTC(num) {
   if (num >= 0) {
     return num - (num % CANVAS_SIZE);
@@ -106,11 +119,9 @@ lineWidthSlider.noUiSlider.on('update', (e) => {
       top : (size/6+18)/4*-1 || -4
     });
 
-  console.log("uislider update");
+  //console.log("uislider update");
 });
 //---------------- draw line width slider ----- end
-
-fabric.Object.prototype.transparentCorners = false;
 
 function changeModeToDrawingMode() {
   if (canvas.getZoom() < DRAWABLE_ZOOM_LIMIT) {
@@ -126,8 +137,7 @@ function changeModeToNavigatingMode() {
   canvas.defaultCursor = canvas.moveCursor;
 }
 
-
-
+//---------------- colorpicker ----- start
 var hueb = new Huebee('.color-input', {
   notation: 'hex',
   staticOpen: false,
@@ -137,18 +147,17 @@ hueb.on('change', function (color, hue, sat, lum) {
   canvas.freeDrawingBrush.color = color;
   updatePreviewColor(color);
 });
-
-// mobile view
+//---------------- colorpicker ----- end
 
 if (canvas.freeDrawingBrush) {
-  canvas.freeDrawingBrush.color = '#000000';
+  canvas.freeDrawingBrush.color = DEFAULT_BRUSH_COLOR;
   //canvas.freeDrawingBrush.width = parseInt(lineWidthSlider.noUiSlider.get(), 10) || 1;
   canvas.freeDrawingBrush.shadow = new fabric.Shadow({
-    blur: parseInt('#000000', 10) || 0,
+    blur: parseInt(DEFAULT_BRUSH_COLOR, 10) || 0,
     offsetX: 0,
     offsetY: 0,
     affectStroke: true,
-    color: '#000000',
+    color: DEFAULT_BRUSH_COLOR,
   });
 }
 
@@ -189,21 +198,6 @@ function removeFromRemote(object) {
   socket.emit('removeObject', envelope);
 }
 
-//should Change
-function objectOutOfChunk(aCoords) {
-  // console.log(aCoords);
-  if (aCoords.tl.x + startPoint.x >= chunk.x + CANVAS_SIZE) {
-    return true;
-  } else if (aCoords.tl.y + startPoint.y >= chunk.y + CANVAS_SIZE) {
-    return true;
-  } else if (aCoords.br.x + startPoint.x < chunk.x) {
-    return true;
-  } else if (aCoords.br.y + startPoint.y < chunk.y) {
-    return true;
-  }
-  return false;
-}
-
 const guid = uuidv4();
 
 //generate guid
@@ -219,7 +213,6 @@ const onObjectAdded = (e) => {
     drawCount += 1;
     e.target.selectable = false;
     e.target.owner = guid;
-    // console.log(e.target);
     const clonedObj = fabric.util.object.clone(e.target);
     // console.log(`clonedObj.left : ${clonedObj.left} , top : ${clonedObj.top}`);
     clonedObj.owner = guid;
@@ -241,28 +234,13 @@ const onObjectAdded = (e) => {
 
 canvas.on('object:added', onObjectAdded);
 
-/*function fetchChunk(x, y) {
-  canvas.off('object:added');
-  $.get(`/api/paintchunk/json/coord/${x}/${y}`).then((json) => {
-    canvas.clear();
-    canvas.absolutePan(new fabric.Point(0, 0));
-    canvas.loadFromJSON(json);
-    canvas.forEachObject((o) => {
-      o.selectable = false;
-    });
-    canvas.on('object:added', onObjectAdded);
-    canvas.renderAll();
-  });
-  currentChunks[`${x},${y}`] = true;
-}*/
-
 function fetchChunk(x, y) {
   socket.emit('getChunkData', { x, y, isMain: true });
 }
 
+//main chunk differs from the others because it is the start chunk.
 socket.on('mainChunkSend', (data) => {
   //console.log('mainChunkSend');
-  // console.log(data);
   canvas.off('object:added');
   canvas.clear();
   canvas.absolutePan(new fabric.Point(0, 0));
@@ -283,7 +261,6 @@ function fetchOtherChunkSocket(x, y) {
 socket.on('otherChunkSend', (data) => {
   const fc = document.createElement('canvas');
   //console.log('otherChunkSend');
-  // console.log(data);
   const fetchCanvas = new fabric.Canvas(fc, { renderOnAddRemove: false });
   // console.log(`fetch from ${data.x},${data.y}`);
 
@@ -296,7 +273,6 @@ socket.on('otherChunkSend', (data) => {
       canvas.renderAll();
       canvas.on('object:added', onObjectAdded);
       // console.log(`fetch done : ${data.x},${data.y}`);
-      // changeInfoText('로딩 완료', 'flash', 'alert-success');
     }, (o, object) => {
       object.left += data.x - startPoint.x;
       object.top += data.y - startPoint.y;
@@ -333,12 +309,13 @@ function leaveRoom(x, y) {
 const randomPanX = getRandomIntInclusive(-500, -1500);
 const randomPanY = getRandomIntInclusive(-500, -1500);
 
+//randomly pan after first chunk fetched.
 function panToRandom(){
   canvas.relativePan(new fabric.Point(randomPanX, randomPanY));
 }
 
-let starttime;
-
+//function to change infoText, alertType relates to the bootstrap alert color.
+//animateCss relates to Animate.css
 function changeInfoText(message, animateMethod, alertType) {
   $('#infotext').text(message);
   $('#infotext').attr('class', `col-lg-4 col-md-12 col-sm-12 alert ${alertType} btn-block`);
@@ -399,12 +376,16 @@ function updatePreviewColor(color) {
 }
 
 function movePreview(x, y) {
-  previewObj.left = x - previewObj.radius;
-  previewObj.top = y - previewObj.radius;
+  if(previewObj != null) {
+    previewObj.left = x - previewObj.radius;
+    previewObj.top = y - previewObj.radius;
+  }
 }
 
 let isPanning = false;
 let beforePoint;
+
+//for panning, touch and clicks.
 
 const touchStart = Rx.Observable.fromEvent(canvas, 'touchstart');
 const touchMove = Rx.Observable.fromEvent(canvas, 'touchmove');
@@ -466,38 +447,19 @@ function mouseHoverPreview(e) {
   canvas.renderAll();
 }
 
-/*canvas.on('mouse:over', (ew) => {
-  if (ew.e instanceof MouseEvent) {
-    let tempPoint = canvas.getPointer(ew.e);
-    if(preview === null) {
-      console.log('hello');
-      createPreview(tempPoint.x, tempPoint.y);
-    } else {
-      console.log('hello');
-      preview.visible = true;
-      updatePreview();
-    }    
-  } else {
-  }
-});*/
 $(".upper-canvas").mouseout(() => { if (previewObj != null) {
     canvas.remove(previewObj);
     previewObj = null;
     canvas.renderAll();
   }
 });
+
 $(".upper-canvas").mouseover((e) => {
   if (canvas.isDrawingMode) {
     let tempPoint = canvas.getPointer(e);
     createPreview(tempPoint.x, tempPoint.y);
   }
 });
-/*
-canvas.on('mouse:out', (ew) => {
-  console.log('im out');
-  preview.visible = false;
-  canvas.renderAll();
-});*/
 
 canvas.on('mouse:move', (ew) => {
   //console.log(canvas.getPointer(ew.e));
@@ -528,8 +490,6 @@ function userNavUp(e) {
     chunk.x = nextChunk.x * 1;
     chunk.y = nextChunk.y * 1;
     joinRoom(chunk.x, chunk.y);
-    //onResize();
-    // console.log('different place');
   }
 }
 
@@ -542,6 +502,7 @@ canvas.on('mouse:up', (ew) => {
   canvas.renderAll();
 });
 
+//update canvas after panning, zooming
 function updateCanvasMove() {
   const vptc = canvas.vptCoords;
   const centerX = (vptc.tr.x + vptc.tl.x) / 2;
@@ -555,20 +516,14 @@ function updateCanvasMove() {
     chunk.x = nextChunk.x * 1;
     chunk.y = nextChunk.y * 1;
     joinRoom(chunk.x, chunk.y);
-    //onResize();
-    // console.log('different place');
   }
   for (let i = getLTC(vptc.tl.x) + startPoint.x; i <= getLTC(vptc.br.x) + startPoint.x; i += CANVAS_SIZE) {
     for (let j = getLTC(vptc.tl.y) + startPoint.y; j <= getLTC(vptc.br.y) + startPoint.y; j += CANVAS_SIZE) {
       //console.log(`checking : ${i},${j}`);
       if (currentChunks[`${i},${j}`] !== true) {
         //console.log(`adding : ${i},${j}`);
-        //if(canvas.getZoom() > 2) {
-        //fetchPng(i, j);
-        //} else {
         fetchMapPngs(i, j);
         fetchChunkFromOther(i, j);
-        //}
         currentChunks[`${i},${j}`] = true;
       }
     }
@@ -613,12 +568,10 @@ function onWheel(e) {
     //console.log('wheel back');
     zoomToCenter(false);
     updateCanvasMove();
-    //changeInfoText('줌 아웃', 'fadeIn', 'alert-primary');
   } else {
     //console.log('wheel foward');
     zoomToCenter(true);
     updateCanvasMove();
-    //changeInfoText('줌 인', 'fadeIn', 'alert-primary');
   }
   canWheel = true;
 }
@@ -659,15 +612,48 @@ mapToggle.onclick = () => {
   }
 };
 
+// right click event
+$(".canvas-container").bind("contextmenu", function(event) { 
+  event.preventDefault();
+  $(".custom-menu").css({top: event.pageY + "px", left: event.pageX + "px"});
+  $(".custom-menu").toggle();
+}).bind("click", function(event) {
+  $(".custom-menu").hide();
+});
+$(".custom-menu").bind("contextmenu", function(event) { 
+  event.preventDefault();
+  $(".custom-menu").toggle();
+});
+
+$("#marker-add-btn").click( () => {
+  if($("#marker-list").find("li").length > 4){
+    alert("최대 5개까지 설정 가능합니다.")
+    return;
+  }
+  var curWidth = canvas.freeDrawingBrush.width;
+  var curColor = canvas.freeDrawingBrush.color;
+  $("#marker-list").append(`<li><button class="btn-sm marker-btn" 
+  style="background-color:${curColor}" 
+  data-color=${curColor} 
+  data-width=${curWidth}>
+  ${curWidth}</button>
+  <button class="btn-sm btn-dark" id="marker-remove-btn">
+  <span class="fa fa-minus"></span></button></li>`);
+});
+
+$(document).on("click", ".marker-btn", function(e){
+  var marker = $(e.target);
+  hueb.setColor(marker.data("color"));
+  lineWidthSlider.noUiSlider.set(marker.data("width"));
+  canvas.freeDrawingBrush.width = marker.data("width");
+  $(".custom-menu").hide();
+});
+
+$(document).on("click","#marker-remove-btn",function(e){
+  $(e.target).parent().remove();
+});
+
 window.addEventListener("resize", onResize);
-
-
-
-function fillCanvasWithImage(x, y, pngData) {
-  fabric.Image.fromURL(pngData, (oImg) => {
-    canvas.add(oImg);
-  });
-}
 
 function getRandomIntInclusive(min, max) {
   min = Math.ceil(min);
@@ -685,7 +671,6 @@ function selectStartChunk() {
 function init() {
   selectStartChunk();
   fetchChunk(chunk.x, chunk.y);
-  // console.log(`startpoint : ${startPoint.x},${startPoint.y}`);
   joinRoom(chunk.x, chunk.y);
   onResize();
   $('#init-modal').modal({ backdrop: 'static', keyboard: false });
@@ -729,47 +714,6 @@ function moveToCoord() {
     moveChunk(inputArr[0] * CANVAS_SIZE, inputArr[1] * CANVAS_SIZE);
   }
 }
-
-// right click event
-$(".canvas-container").bind("contextmenu", function(event) { 
-  event.preventDefault();
-  $(".custom-menu").css({top: event.pageY + "px", left: event.pageX + "px"});
-  $(".custom-menu").toggle();
-}).bind("click", function(event) {
-  $(".custom-menu").hide();
-});
-$(".custom-menu").bind("contextmenu", function(event) { 
-  event.preventDefault();
-  $(".custom-menu").toggle();
-});
-
-$("#marker-add-btn").click( () => {
-  if($("#marker-list").find("li").length > 4){
-    alert("최대 5개까지 설정 가능합니다.")
-    return;
-  }
-  var curWidth = canvas.freeDrawingBrush.width;
-  var curColor = canvas.freeDrawingBrush.color;
-  $("#marker-list").append(`<li><button class="btn-sm marker-btn" 
-  style="background-color:${curColor}" 
-  data-color=${curColor} 
-  data-width=${curWidth}>
-  ${curWidth}</button>
-  <button class="btn-sm btn-dark" id="marker-remove-btn">
-  <span class="fa fa-minus"></span></button></li>`);
-});
-
-$(document).on("click", ".marker-btn", function(e){
-  var marker = $(e.target);
-  hueb.setColor(marker.data("color"));
-  lineWidthSlider.noUiSlider.set(marker.data("width"));
-  canvas.freeDrawingBrush.width = marker.data("width");
-  $(".custom-menu").hide();
-});
-
-$(document).on("click","#marker-remove-btn",function(e){
-  $(e.target).parent().remove();
-});
 
 function sendPing(x, y, type) {
   //curPos

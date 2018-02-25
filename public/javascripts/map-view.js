@@ -9,6 +9,27 @@ const mapCanvas = new fabric.StaticCanvas("map", {
   isDrawingMode: false,
 });
 
+//prevent canvas.renderAll getting called more than browser framerate.
+const render = mapCanvas.renderAll.bind(mapCanvas);
+const stop = () => isAnimating = false;
+const play = () => {
+  isAnimating = true;
+  mapCanvas.renderAll();
+};
+
+mapCanvas.renderAll = () => {
+  if (!isRendering) {
+    isRendering = true;
+    requestAnimationFrame(() => {
+      render();
+      isRendering = false;
+      if (isAnimating) {
+        mapCanvas.renderAll();
+      }
+    });
+  }
+};
+
 var Cross = fabric.util.createClass(fabric.Object, {
   objectCaching: false,
   initialize: function (options) {
@@ -53,15 +74,8 @@ mapCanvas.setWidth(128);
 mapCanvas.setHeight(128);
 
 function moveMapPointer(x, y) {
-  //mapCanvas.clear();
-  //mapX = (x / 131072) * 150;
-  //mapY = (y / 131072) * 150;
-  //mapCanvas.add(new Cross({ top: mapY, left: mapX }));
-  //mapCanvas.setBackgroundColor('rgba(255,255,255,1)', mapCanvas.renderAll.bind(mapCanvas));
-  //console.log(text);
   coordText.setText(`(${chunk.x / 4096},${chunk.y / 4096})`);
   mapCanvas.renderAll();
-  //mapCanvas.add(text);
 }
 
 function navigateMap(x, y) {
@@ -78,7 +92,6 @@ pngChunks = {};
 function fetchPng(x, y, size) {
   socket.emit("getPng", { xAxis: x, yAxis: y, size: size });
 }
-
 
 socket.on("pngHit", (data) => {
   //console.log("hit");
@@ -99,8 +112,8 @@ socket.on("receivePing", (ping) => {
   //console.log(ping);
 });
 
+//check if virtual coord x,y is inside the map
 function isInsideMap(x, y) {
-
   if (startPoint.x + (mapCanvas.vptCoords.tl.x) * 64 < x && x < startPoint.x + (mapCanvas.vptCoords.tr.x * 64) &&
     startPoint.y + (mapCanvas.vptCoords.tl.y) * 64 < y && y < startPoint.y + (mapCanvas.vptCoords.bl.y) * 64) {
     return true;
@@ -160,12 +173,10 @@ function reflectZoomOnMap() {
   zoomText.setText(`[${canvas.getZoom().toFixed(2)}]`);
 }
 
-
 const cross = new Cross({ top: 54, left: 54 });
 const coordText = new fabric.Text(`(${chunk.x / 4096},${chunk.y / 4096})`, { top: 75, left: 75 + 10, fontSize: 10 });
 const zoomText = new fabric.Text(`[${canvas.getZoom().toFixed(2)}]`, { top: 85, left: 75 + 10, fontSize: 10 });
 const group = new fabric.Group([cross, coordText, zoomText]);
-
 
 function mapInit() {
   fetchMapPngs(chunk.x, chunk.y);
@@ -177,14 +188,5 @@ function mapInit() {
   group.set("top", mapCanvas.vptCoords.tl.y + 54);
   mapCanvas.renderAll();
 }
-//mapCanvas.add(cross);
 
-//const curCenterX = ((canvas.vptCoords.tr.x + canvas.vptCoords.tl.x) / 2) + startPoint.x;
-//const curCenterY = ((canvas.vptCoords.bl.y + canvas.vptCoords.tl.y) / 2) + startPoint.y;
-//moveMapPointer(curCenterX, curCenterY);
-/*function getCurCenter() {
-  const curCenterX = (canvas.vptCoords.tr.x + canvas.vptCoords.tl.x) / 2;
-  const curCenterY = (canvas.vptCoords.bl.y + canvas.vptCoords.tl.y) / 2;
-  // console.log(`curCenter : ${curCenterX+startPoint.x},${curCenterY+startPoint.y}`);
-}*/
 mapInit();
