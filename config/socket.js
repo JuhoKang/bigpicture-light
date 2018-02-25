@@ -325,13 +325,20 @@ module.exports = function (server) {
           if (destUsers[dirtyUsersKeys[j]] !== true) {
             destUsers[dirtyUsersKeys[j]] = true;
           }
-              }
-            }
+        }
+      }
 
-            const destUsersKeys = Object.keys(destUsers);
-            for (let i = 0; i < destUsersKeys.length; i += 1) {
-              socket.broadcast.to(destUsersKeys[i]).emit("toclient", msg);
-            }
-          });
-      });
-    };
+      const destUsersKeys = Object.keys(destUsers);
+      for (let i = 0; i < destUsersKeys.length; i += 1) {
+        socket.broadcast.to(destUsersKeys[i]).emit("toclient", msg);
+      }
+    });
+
+    socket.on("sendPing", (ping) => {
+      //debug("ping!");
+      //debug(ping);
+      socket.broadcast.emit("receivePing", ping);
+    });
+
+  });
+};

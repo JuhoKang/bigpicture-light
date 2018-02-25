@@ -136,6 +136,7 @@ function sendMessage(username, usermsg) {
     type = "string";
     msg = usermsg.val();
   }
+  sendPing(startPoint.x + (canvas.vptCoords.tl.x + canvas.vptCoords.tr.x) / 2, startPoint.y + (canvas.vptCoords.tl.y + canvas.vptCoords.bl.y) / 2, "chat");
   socket.emit("fromclient", {
     username: username,
     type: type,
