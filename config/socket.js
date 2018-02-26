@@ -264,6 +264,7 @@ module.exports = function (server) {
         from: {
           name: data.username,
         },
+        type: data.type,
         msg: data.msg
       };
       const theRooms = Object.keys(socket.rooms);
