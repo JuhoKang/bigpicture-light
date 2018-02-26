@@ -4,7 +4,7 @@
 
 > bigpicture-light provides a large playground to draw and chat with each other online.
 
-Consumer demand for contents are increasing. Traditionaly text, video, image sharing is the basic way for Social networking and sharing. Big-picture project tries to find a way to share with other people with their own drawing. Drawing unique pictures together with different users across the net will create a new sense of Internet culture.
+Consumer demand for contents are increasing. Traditionally text, video, image sharing are the basic ways for Social networking and sharing. Big-picture project tries to find a way to share with other people with their own drawing. Drawing unique pictures together with different users across the net will create a new sense of Internet culture.
 
 ## Overview
 
@@ -22,6 +22,8 @@ Consumer demand for contents are increasing. Traditionaly text, video, image sha
 * Simple chatting with other people based on user present coordinates
 * Simple brush change settings
 * Simple, intuitive map to show where you are
+* Ping on the map to show other people where you are
+* Saving brush configs with the right click menu
 
 ## Installation and Settings
 
@@ -48,7 +50,7 @@ you need zlib1g-dev for sharp dependency
     
 ## Third Party Libraries
 
-check package.json
+check package.json ![dependencies](https://github.com/JuhoKang/bigpicture-light/network/dependencies)
 
 ## License
 bigpicture-light is licensed under the MIT license.
