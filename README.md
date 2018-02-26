@@ -6,6 +6,8 @@
 
 Consumer demand for contents are increasing. Traditionally text, video, image sharing are the basic ways for Social networking and sharing. Big-picture project tries to find a way to share with other people with their own drawing. Drawing unique pictures together with different users across the net will create a new sense of Internet culture.
 
+bigpicture-light client performance is best on firefox.
+
 ## Overview
 
 ![intro](https://github.com/JuhoKang/bigpicture-light/blob/master/bpimage1.png)
@@ -50,7 +52,7 @@ you need zlib1g-dev for sharp dependency
     
 ## Third Party Libraries
 
-check package.json ![dependencies](https://github.com/JuhoKang/bigpicture-light/network/dependencies)
+check package.json (https://github.com/JuhoKang/bigpicture-light/network/dependencies)
 
 ## License
 bigpicture-light is licensed under the MIT license.
